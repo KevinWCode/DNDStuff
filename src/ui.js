@@ -57,33 +57,41 @@ function render() {
   $('#top').innerHTML = topHTML(c);
   const main = $('#main');
   const sy = window.scrollY;
-  main.innerHTML = DB.ui.mode === 'combat' ? combatHTML(c) : ({ sheet: sheetHTML, spells: spellsHTML, gear: gearHTML, notes: notesHTML, log: logHTML }[DB.ui.tab] || sheetHTML)(c);
+  main.innerHTML = DB.ui.mode === 'combat' ? combatHTML(c) : ({ sheet: sheetHTML, spells: spellsHTML, gear: gearHTML, party: partyHTML, notes: notesHTML, log: logHTML }[DB.ui.tab] || sheetHTML)(c);
   const slot = $('#inkSlot'); if (slot) { slot.appendChild(INK.el); INK.fit(); }
   $('#dock').hidden = DB.ui.mode !== 'combat';
   if (DB.ui.mode === 'combat') { $('#dock').innerHTML = dockHTML(c); requestAnimationFrame(sizeDock); }
+  else { document.body.style.removeProperty('--dock-h'); document.body.style.removeProperty('--toast-b'); }
   window.scrollTo(0, sy);
   if (ui.xray && ui.xray.pinned) showXray(ui.xray.key, null, true);
   postAnim();
 }
 let pendingAnim = [];
 function postAnim() { pendingAnim.forEach(([sel, cls]) => { const el = document.querySelector(sel); if (el) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); } }); pendingAnim = []; }
-function sizeDock() { const d = $('#dock'); if (!d) return; document.body.style.setProperty('--dock-h', d.offsetHeight + 'px'); document.body.style.setProperty('--toast-b', (d.offsetHeight + 16) + 'px'); }
+function sizeDock() { const d = $('#dock'); if (!d || d.hidden) return; const fromBottom = window.innerHeight - d.getBoundingClientRect().top; document.body.style.setProperty('--dock-h', fromBottom + 'px'); document.body.style.setProperty('--toast-b', (fromBottom + 16) + 'px'); }
 
+const NAV = [['combat', 'Combat'], ['sheet', 'Sheet'], ['spells', 'Spells'], ['gear', 'Gear'], ['party', 'Party'], ['notes', 'Notes'], ['log', 'Log']];
 function topHTML(c) {
   const cls = c.classes.map(k => k.name + ' ' + k.lvl).join(' / ');
   const st = undoStacks[c.id] || [];
-  const tabs = DB.ui.mode === 'explore' ? `<nav class="wrap tabs" aria-label="Sheet sections">${[['sheet', 'Sheet'], ['spells', c.casting ? 'Spells' : 'Spells'], ['gear', 'Gear & Attacks'], ['notes', 'Notes'], ['log', 'Changelog']].map(([k, n]) => `<button data-act="tab" data-arg="${k}" class="${DB.ui.tab === k ? 'on' : ''}">${n}</button>`).join('')}</nav>` : '';
+  const view = DB.ui.mode === 'combat' ? 'combat' : DB.ui.tab;
+  const max = R.stats.hpmax.v, cur = c.hp.cur, tmp = c.hp.temp, tot = Math.max(max, cur + tmp);
+  const status = DB.ui.mode === 'combat'
+    ? `<span class="rnd">Round ${c.turn.round}</span>`
+    : `<button class="minihp${R.bloodied ? ' bl' : ''}" data-act="go" data-arg="combat" aria-label="Hit points ${cur} of ${max}${tmp ? ', ' + tmp + ' temporary' : ''}. Open combat"><b>${cur}</b><span>HP ${cur} / ${max}${tmp ? ' · +' + tmp : ''}</span><span class="hb"><i style="width:${(cur / tot * 100).toFixed(1)}%"></i>${tmp ? `<i class="t" style="left:${(cur / tot * 100).toFixed(1)}%;width:${(tmp / tot * 100).toFixed(1)}%"></i>` : ''}</span></button>`;
   return `<div class="wrap top-in">
     <button class="sigil" data-act="menu" aria-label="Characters and settings">${esc(c.portrait || c.name[0])}</button>
     <div class="who"><h1>${esc(c.name)}</h1><div class="sub">${esc(c.species)} ${esc(cls)} · ${c.ruleset === '2024' ? '2024 rules' : '2014 rules'}</div></div>
-    <div class="mode" role="tablist"><button data-act="mode" data-arg="explore" class="${DB.ui.mode === 'explore' ? 'on' : ''}">Explore</button><button data-act="mode" data-arg="combat" class="${DB.ui.mode === 'combat' ? 'on' : ''}">Combat</button></div>
+    <nav class="nav" aria-label="Screens">${NAV.map(([k, n]) => `<button data-act="go" data-arg="${k}" class="${view === k ? 'on' : ''}" ${view === k ? 'aria-current="page"' : ''}><i></i>${n}</button>`).join('')}</nav>
+    <span class="grow"></span>
+    ${status}
     <div class="tools">
-      <button class="tbtn" data-act="undo" ${st.length ? '' : 'disabled'} aria-label="Undo">${I.undo}<small>Undo${st.length ? ' ' + st.length : ''}</small></button>
-      <button class="tbtn ${ui.editing ? 'on' : ''}" data-act="edit" aria-label="Edit lock">${ui.editing ? I.edit : I.lock}<small>${ui.editing ? 'Editing' : 'Locked'}</small></button>
-      <button class="tbtn" data-act="short" aria-label="Short rest">${I.fire}<small>Short</small></button>
-      <button class="tbtn" data-act="long" aria-label="Long rest">${I.moon}<small>Long</small></button>
-      <button class="tbtn" data-act="menu" aria-label="Menu">${I.menu}<small>Menu</small></button>
-    </div></div>${tabs}`;
+      <button class="tbtn" data-act="undo" ${st.length ? '' : 'disabled'} aria-label="Undo${st.length ? ' (' + st.length + ')' : ''}" title="Undo">${I.undo}${st.length ? `<small>${st.length}</small>` : ''}</button>
+      <button class="tbtn ${ui.editing ? 'on' : ''}" data-act="edit" aria-label="${ui.editing ? 'Editing unlocked. Tap to lock' : 'Sheet locked. Tap to edit'}" title="${ui.editing ? 'Editing' : 'Locked'}">${ui.editing ? I.edit : I.lock}</button>
+      <button class="tbtn" data-act="short" aria-label="Short rest" title="Short rest">${I.fire}</button>
+      <button class="tbtn" data-act="long" aria-label="Long rest" title="Long rest">${I.moon}</button>
+      <button class="tbtn" data-act="menu" aria-label="Menu" title="Menu">${I.menu}</button>
+    </div></div>`;
 }
 const xa = (key, extra = '') => `data-x="${key}" ${R.stats[key] && R.stats[key].ov ? 'data-ov="1"' : ''} ${extra}`;
 const ovc = key => R.stats[key] && R.stats[key].ov ? ' ovr' : '';
@@ -102,7 +110,6 @@ function vitalsTiles(c, combat) {
 function hpPanel(c, combat) {
   const max = R.stats.hpmax.v, cur = c.hp.cur, tmp = c.hp.temp;
   const pct = Math.max(0, Math.min(1, cur / max)), tot = Math.max(max, cur + tmp);
-  const hue = Math.round(pct * 120), col = `hsl(${hue} 70% ${cur ? 45 : 30}%)`;
   const targets = [['me', 'Me']].concat((c.summons || []).map(m => [m.id, m.name.split(' (')[0]]));
   const hasForm = (c.summons || []).find(m => m.absorb && m.active);
   const pad = ['1', '2', '3', '4', '5', '+', '6', '7', '8', '9', '0', '⌫'].map(k => `<button data-act="kp" data-arg="${k}" aria-label="${k === '⌫' ? 'Backspace' : k === 'C' ? 'Clear' : k}">${k}</button>`).join('');
@@ -119,8 +126,7 @@ function hpPanel(c, combat) {
   }
   return `<section class="panel hp ${combat ? 'hot' : ''} hpcol" id="hpPanel" aria-label="Hit points">
     <div class="ph"><h2>Hit Points</h2><span>${R.bloodied ? '<span class="badge blood">Bloodied</span>' : ''} ${c.conc ? `<button class="badge conc" data-act="dropconc" style="border-radius:999px">Concentrating: ${esc(c.conc)} ✕</button>` : ''}</span></div>
-    <div class="hpnum" ${xa('hpmax')}><span class="big">${cur}</span><span class="muted">/ ${max}</span>${tmp ? `<span class="tmp">+${tmp} temp</span>` : ''}</div>
-    <div class="hpbar" aria-hidden="true"><div class="f" style="width:${(cur / tot * 100).toFixed(1)}%;background:${col}"></div><div class="t" style="left:${(cur / tot * 100).toFixed(1)}%;width:${(tmp / tot * 100).toFixed(1)}%"></div><div class="txt">${Math.round(pct * 100)}%</div></div>
+    ${hpRing(cur, max, tmp, R.bloodied)}
     ${death}
     ${targets.length > 1 ? `<div class="chips" aria-label="Apply to">${targets.map(([id, n]) => `<button class="chip ${ui.target === id ? 'on' : ''}" data-act="target" data-arg="${id}">${esc(n)}</button>`).join('')}</div>` : ''}
     <div class="hpin"><div class="disp" aria-live="polite" data-act="kp" data-arg="C" title="Tap to clear"><em>${ui.hpIn && parsed && /\+/.test(ui.hpIn) ? '= ' + parsed.n : 'Amount'}</em>${esc(ui.hpIn) || '0'}</div>
@@ -130,6 +136,17 @@ function hpPanel(c, combat) {
   </section>`;
 }
 
+function hpRing(cur, max, tmp, blood) {
+  const c = 120, r = 100, arc = .78, rot = 90 + (1 - arc) * 180, C = 2 * Math.PI * r, r2 = r + 12, C2 = 2 * Math.PI * r2;
+  const f = Math.max(0, Math.min(1, cur / max)), tf = Math.min(1, tmp / max), toff = f + tf <= 1 ? f : Math.max(0, 1 - tf);
+  const ticks = Array.from({ length: 11 }, (_, i) => { const a = (rot + i * arc * 36) * Math.PI / 180, h = i === 5, r1 = 84, rr = h ? 74 : 79; return `<line x1="${(c + Math.cos(a) * r1).toFixed(1)}" y1="${(c + Math.sin(a) * r1).toFixed(1)}" x2="${(c + Math.cos(a) * rr).toFixed(1)}" y2="${(c + Math.sin(a) * rr).toFixed(1)}" style="stroke:var(${h ? '--bad' : '--line'})" stroke-width="${h ? 3 : 1.5}"/>`; }).join('');
+  return `<div class="ring${blood ? ' bl' : ''}${cur === 0 ? ' down' : ''}" ${xa('hpmax')}><svg viewBox="0 0 240 240" aria-hidden="true"><g transform="rotate(${rot} ${c} ${c})">
+    <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke-width="15" style="stroke:var(--line)" stroke-dasharray="${(C * arc).toFixed(1)} ${C.toFixed(1)}"/>
+    <circle class="hpf" cx="${c}" cy="${c}" r="${r}" fill="none" stroke-width="15" stroke-dasharray="${(C * arc * f).toFixed(1)} ${C.toFixed(1)}"/>
+    ${tmp ? `<circle cx="${c}" cy="${c}" r="${r2}" fill="none" stroke-width="6" style="stroke:var(--temp)" stroke-dasharray="${(C2 * arc * tf).toFixed(1)} ${(C2 * 2).toFixed(1)}" stroke-dashoffset="${(-C2 * arc * toff).toFixed(1)}"/>` : ''}</g>${ticks}</svg>
+    <div class="ctr"><span class="big">${cur}</span><span class="of">of ${max}</span>${tmp ? `<span class="tmp">+${tmp} TEMP</span>` : ''}</div>
+    <div class="bl-at">${blood ? 'BLOODIED' : 'BLOODIED AT ' + Math.floor(max / 2)}</div></div>`;
+}
 function savesHTML(c) {
   return `<section class="panel"><div class="ph"><h2>Saving Throws</h2></div><div class="rows">${ABIL.map(a => {
     const st = R.stats['save_' + a];
@@ -137,7 +154,10 @@ function savesHTML(c) {
   }).join('')}</div></section>`;
 }
 function abilHTML(c) {
-  return `<section class="panel hot"><div class="ph"><h2>Abilities</h2><button class="btn sm edit-only" data-act="form" data-arg="abil">${I.edit} Scores</button></div><div class="abil">${ABIL.map(a => `<div class="ab${ovc('abil_' + a)}" ${xa('abil_' + a)}><div class="lbl">${ABN[a].slice(0, 3)}</div><div class="m">${sgn(R.mods[a])}</div><span class="s">${c.abilities[a]}</span></div>`).join('')}</div></section>`;
+  return `<section class="panel hot"><div class="ph"><h2>Abilities</h2><button class="btn sm edit-only" data-act="form" data-arg="abil">${I.edit} Scores</button></div>${gemsHTML(c, false)}</section>`;
+}
+function gemsHTML(c, withSaves) {
+  return `<div class="abil${withSaves ? ' six' : ''}">${ABIL.map(a => `<div class="gemcol"><div class="ab gem${ovc('abil_' + a)}${c.casting && c.casting.ability === a ? ' hi' : ''}" ${xa('abil_' + a)}><div class="gi"><div class="lbl">${ABN[a].slice(0, 3)}</div><div class="m">${sgn(R.mods[a])}</div><span class="s">${c.abilities[a]}</span></div></div>${withSaves ? `<div class="gsv${c.saves.includes(a) ? ' p' : ''}${ovc('save_' + a)}" ${xa('save_' + a)}>save <b>${sgn(R.stats['save_' + a].v)}</b></div>` : ''}</div>`).join('')}</div>`;
 }
 function skillsHTML(c) {
   return `<section class="panel"><div class="ph"><h2>Skills</h2><span class="muted" style="font-size:.8em">○ none ● proficient ◆ expertise</span></div><div class="rows">${SKILLS.map(([k, a, n]) => {
@@ -196,7 +216,7 @@ function attacksHTML(c, onlySet) {
   const list = R.attacks.filter(a => !onlySet || a.inSet);
   return `<section class="panel hot"><div class="ph"><h2>Attacks</h2><button class="btn sm edit-only" data-act="add" data-arg="attack">${I.plus} Add</button></div>
   <div class="sets">${c.sets.map((s, i) => `<button class="chip ${c.activeSet === i ? 'on' : ''}" data-act="set" data-arg="${i}">${esc(s.name)}${s.shield ? ' <span class="ct">+shield</span>' : ''}</button>`).join('')}<button class="chip edit-only" data-act="add" data-arg="set">${I.plus} Set</button></div>
-  ${list.map(a => `<div class="atk${ovc('atk_' + a.w.id)}" ${xa('atk_' + a.w.id)}><div><b>${esc(a.w.name)}</b><div>${a.w.mastery ? `<span class="tag m">${esc(a.w.mastery)}</span>` : ''}<span class="tag">${esc(a.w.props || '')}</span></div></div>
+  ${list.map(a => `<div class="atk${ovc('atk_' + a.w.id)}" ${xa('atk_' + a.w.id)}><div class="an"><b>${esc(a.w.name)}</b><div>${a.w.mastery ? `<span class="tag m">${esc(a.w.mastery)}</span>` : ''}<span class="tag">${esc(a.w.props || '')}</span></div></div>
     <div class="hit">${sgn(a.hit.v)}<small>TO HIT${a.hit.dice.length ? ' ' + a.hit.dice.map(d => '+' + d).join(' ') : ''}</small></div>
     <div class="dm" ${xa('dmg_' + a.w.id)}>${esc(a.dmgTxt)}<small>${esc(a.w.type || '')}</small></div>
     ${ui.editing ? `<button class="btn sm" data-act="edititem" data-arg="attack:${a.w.id}" style="grid-column:1/-1">${I.edit} Edit</button>` : ''}</div>`).join('') || '<div class="empty">No attacks in this weapon set.</div>'}
@@ -211,17 +231,21 @@ function buffTray(c) {
 function combatHTML(c) {
   const sp = R.stats.speed.v * (c.turn.dash ? 2 : 1), sq = Math.min(48, Math.floor(sp / 5));
   return `<div class="hud">
-    ${hpPanel(c, true)}
+    <div class="stack hcol">${hpPanel(c, true)}<section class="panel">${vitalsTiles(c, true)}</section></div>
     <div class="stack">
-      <section class="panel"><div class="roundbox"><span class="rn">Round ${c.turn.round}</span><span class="muted" style="flex:1">${R.actionsMax > 1 ? R.actionsMax + ' actions this turn' : ''}</span><button class="btn sm" data-act="newcombat">New fight</button><button class="endturn" data-act="endturn">End Turn</button></div></section>
-      <section class="panel">${vitalsTiles(c, true)}
-        <div class="lbl" style="margin:12px 0 6px">Movement · ${sp - c.turn.move * 5} of ${sp} ft left</div>
-        <div class="moves">${Array.from({ length: sq }, (_, i) => `<button class="${i < c.turn.move ? 'u' : ''}" data-act="move" data-arg="${i}" aria-label="Square ${i + 1}"></button>`).join('')}</div>
-        <div class="btnrow" style="margin-top:8px"><button class="chip ${c.turn.dash ? 'on' : ''}" data-act="dash">Dash</button><button class="chip" data-act="moveclear">Reset move</button></div></section>
+      <section class="panel hot"><div class="ph"><h2>Abilities</h2></div>${gemsHTML(c, true)}</section>
+      ${attacksHTML(c, true)}
       ${buffTray(c)}
       ${condHTML(c)}
     </div>
-    <div class="stack">${attacksHTML(c, true)}${slotsHTML(c)}${resourcesHTML(c)}${summonsHTML(c)}</div>
+    <div class="stack rcol">
+      <section class="panel"><div class="roundbox"><span class="rn">Round ${c.turn.round}</span><span class="muted" style="flex:1">${R.actionsMax > 1 ? R.actionsMax + ' actions this turn' : ''}</span><button class="btn sm" data-act="newcombat">New fight</button>${DB.settings.dockOpen ? '' : '<button class="endturn" data-act="endturn">End Turn</button>'}</div></section>
+      ${slotsHTML(c)}${resourcesHTML(c)}
+      <section class="panel"><div class="ph"><h2>Movement</h2><span class="muted">${sp - c.turn.move * 5} of ${sp} ft left</span></div>
+        <div class="moves">${Array.from({ length: sq }, (_, i) => `<button class="${i < c.turn.move ? 'u' : ''}" data-act="move" data-arg="${i}" aria-label="Square ${i + 1}"></button>`).join('')}</div>
+        <div class="btnrow" style="margin-top:8px"><button class="chip ${c.turn.dash ? 'on' : ''}" data-act="dash">Dash</button><button class="chip" data-act="moveclear">Reset move</button></div></section>
+      ${summonsHTML(c)}
+    </div>
   </div>`;
 }
 function laneItems(c, lane) {
@@ -238,23 +262,30 @@ function dockHTML(c) {
   return `<button class="dock-toggle" data-act="dock">${open ? 'Hide action bar' : 'Show action bar'}</button>
   <div class="wrap dock-in" ${open ? '' : 'hidden'}>${LANES.map(([k, n]) => `<section class="lane ${spent[k] ? 'spent' : k !== 'free' ? 'avail' : ''}" data-lane="${k}">
     <header><span class="gem"></span><b>${n}${k === 'action' && R.actionsMax > 1 ? ' ×' + (R.actionsMax - t.action) : ''}</b>${k !== 'free' ? `<button data-act="lane" data-arg="${k}">${spent[k] ? 'Spent' : 'Mark used'}</button>` : ''}${k === 'action' ? '<button data-act="extra" title="Action Surge, Haste">+1</button>' : ''}</header>
-    <div class="cards">${laneItems(c, k).map(it => `<button class="card ${it.std ? 'std' : ''}" data-act="use" data-arg="${it.k}:${esc(it.id)}:${k}"><b>${esc(it.n)}</b><span>${esc(it.s)}</span></button>`).join('')}</div></section>`).join('')}</div>`;
+    <div class="cards">${laneItems(c, k).map(it => `<button class="card ${it.std ? 'std' : ''}" data-act="use" data-arg="${it.k}:${esc(it.id)}:${k}"><b>${esc(it.n)}</b><span>${esc(it.s)}</span></button>`).join('')}</div></section>`).join('')}
+    <button class="endturn" data-act="endturn">End Turn<small>Round ${t.round}</small></button></div>`;
 }
 
 /* --- spells --- */
+const LG = { action: 'A', bonus: 'B', reaction: 'R', free: 'F' };
 function spellsHTML(c) {
   const f = ui.spellFilter, lf = ui.lvlFilter;
   const lvls = [...new Set(c.spells.map(s => s.lvl))].sort((a, b) => a - b);
   const list = c.spells.filter(s => (f === 'all' || (f === 'conc' && s.conc) || (f === 'ritual' && s.ritual) || s.time === f) && (lf === 'all' || s.lvl === +lf)).sort((a, b) => a.lvl - b.lvl || a.name.localeCompare(b.name));
-  return `<div class="grid2" style="grid-template-columns:minmax(0,1fr) minmax(0,2.4fr)">
-    <div class="stack">${c.casting ? `<section class="panel"><div class="tiles">${tile('dc', 'Spell DC', R.stats.dc.v)}${tile('spellatk', 'Spell Atk', sgn(R.stats.spellatk.v) + diceSmall(R.stats.spellatk))}${tile('abil_' + c.casting.ability, c.casting.ability.toUpperCase(), sgn(R.mods[c.casting.ability]))}</div></section>` : `<section class="panel"><div class="empty">No spellcasting ability set. Unlock editing and use Core to add one.</div></section>`}${slotsHTML(c)}</div>
+  const glyph = t => `<span class="lg ${LG[t] || ''}" aria-hidden="true">${t === 'action' ? 'A' : ''}</span>`;
+  return `<div class="stack">
+    <section class="panel hot srail">
+      ${c.slots.length ? `<div class="slots">${c.slots.map((s, i) => `<div class="slotrow"><span class="lv">${s.label ? esc(s.label) + ' ' : ''}${ord(s.lvl)}</span>${Array.from({ length: s.max }, (_, j) => `<button class="pip ${j >= s.max - s.used ? 'used' : ''}" id="pip-${i}-${j}" data-act="pip" data-arg="${i}:${j}" aria-label="${ord(s.lvl)} level slot ${j + 1}"></button>`).join('')}<span class="muted">${s.rest === 'short' ? 'Short rest' : 'Long rest'}</span></div>`).join('')}<button class="btn sm edit-only" data-act="form" data-arg="slots">${I.edit} Slots</button></div>` : `<div class="empty">${c.casting ? 'No slots set.' : 'No spellcasting ability set. Unlock editing and use Core to add one.'}</div>`}
+      ${c.casting ? `<div class="tiles">${tile('dc', 'Save DC', R.stats.dc.v)}${tile('spellatk', 'Spell Atk', sgn(R.stats.spellatk.v) + diceSmall(R.stats.spellatk))}</div>` : ''}
+      ${c.conc ? `<div class="concbox"><span class="rg"><i></i></span><div><b>${esc(c.conc)}</b><span>Concentrating</span></div><button class="btn sm" data-act="dropconc">Drop</button></div>` : `<div class="concbox off"><span class="rg"></span><div><b>Not concentrating</b><span>Casting a concentration spell shows it here</span></div></div>`}
+    </section>
     <section class="panel"><div class="ph"><h2>Spellbook</h2><span class="btnrow"><button class="btn sm edit-only" data-act="srd">Search SRD</button><button class="btn sm edit-only" data-act="add" data-arg="spell">${I.plus} Add</button></span></div>
-      <div class="filters">${[['all', 'All'], ['conc', 'Concentration'], ['ritual', 'Ritual'], ['action', 'Action'], ['bonus', 'Bonus'], ['reaction', 'Reaction']].map(([k, n]) => `<button class="chip ${f === k ? 'on' : ''}" data-act="sfilter" data-arg="${k}">${n}</button>`).join('')}</div>
+      <div class="filters">${[['all', 'All'], ['conc', 'Concentration'], ['ritual', 'Ritual'], ['action', 'Action'], ['bonus', 'Bonus'], ['reaction', 'Reaction']].map(([k, n]) => `<button class="chip ${f === k ? 'on' : ''}" data-act="sfilter" data-arg="${k}">${LG[k] ? glyph(k) : ''}${n}</button>`).join('')}</div>
       <div class="levelbar" ${c.spells.length ? "" : "hidden"}>${['all'].concat(lvls).map(l => `<button class="${String(lf) === String(l) ? 'on' : ''}" data-act="lfilter" data-arg="${l}">${l === 'all' ? 'All' : l === 0 ? 'C' : l}</button>`).join('')}</div>
-      <div class="spgrid">${list.map(s => `<div class="sp ${ui.flipped.has(s.id) ? 'flip' : ''}" data-act="flip" data-arg="${s.id}" role="button" tabindex="0" aria-label="${esc(s.name)} card, tap to flip">
-        <div class="in"><div class="face"><span class="lvl">${s.lvl || 'C'}</span><h3>${esc(s.name)}</h3><div class="muted">${s.lvl ? ord(s.lvl) + '-level ' : ''}${esc(s.school || '')}${s.lvl ? '' : ' cantrip'}</div>
-          <dl class="meta"><dt>Cast</dt><dd>${TIME[s.time] || esc(s.time)}</dd><dt>Range</dt><dd>${esc(s.range || '—')}</dd><dt>Duration</dt><dd>${esc(s.dur || '—')}</dd><dt>Parts</dt><dd>${esc(s.comp || '—')}</dd></dl>
-          <div class="ftr">${s.area && SHAPES[s.area] ? SHAPES[s.area] : ''}${s.conc ? '<span class="tag m">Concentration</span>' : ''}${s.ritual ? '<span class="tag m">Ritual</span>' : ''}<span class="muted" style="margin-left:auto;font-size:.8em">tap to flip</span></div></div>
+      <div class="spgrid">${list.map(s => `<div class="sp ${ui.flipped.has(s.id) ? 'flip' : ''} ${c.conc && c.conc === s.name ? 'active' : ''}" data-act="flip" data-arg="${s.id}" role="button" tabindex="0" aria-label="${esc(s.name)} card, tap to flip">
+        <div class="in"><div class="face"><div class="sptop"><span class="lvl${s.lvl ? '' : ' c'}">${s.lvl || '∞'}</span><div><h3>${esc(s.name)}</h3><div class="muted">${s.lvl ? ord(s.lvl) + '-level ' : ''}${esc(s.school || '')}${s.lvl ? '' : ' cantrip'}</div></div></div>
+          <dl class="meta"><dt>Cast</dt><dd>${glyph(s.time)} ${TIME[s.time] || esc(s.time)}</dd><dt>Range</dt><dd>${esc(s.range || '—')}</dd><dt>Duration</dt><dd>${esc(s.dur || '—')}</dd><dt>Parts</dt><dd>${esc(s.comp || '—')}</dd></dl>
+          <div class="ftr">${s.area && SHAPES[s.area] ? SHAPES[s.area] : ''}${s.conc ? '<span class="tag m">Conc</span>' : ''}${s.ritual ? '<span class="tag m">Ritual</span>' : ''}${c.conc && c.conc === s.name ? '<span class="tag m">Active</span>' : ''}<span class="muted" style="margin-left:auto;font-size:.8em">tap to flip</span></div></div>
         <div class="face back"><h3>${esc(s.name)}</h3><p>${interp(s.desc || '', R)}</p><div class="ftr"><button class="btn sm pri" data-act="cast" data-arg="${s.id}">${s.lvl ? 'Cast' : 'Use'}</button><button class="btn sm edit-only" data-act="edititem" data-arg="spell:${s.id}">${I.edit}</button></div></div></div></div>`).join('') || '<div class="empty">No spells match.</div>'}</div>
     </section></div>`;
 }
@@ -265,9 +296,33 @@ function gearHTML(c) {
   return `<div class="grid2">
     <div class="stack">${attacksHTML(c, false)}${buffTray(c)}${summonsHTML(c)}</div>
     <div class="stack">
-      <section class="panel"><div class="ph"><h2>Attunement</h2><span class="muted">${att.length} of ${maxAtt}</span></div><div class="sockets">${Array.from({ length: maxAtt }, (_, i) => att[i] ? `<div class="sock full" data-act="attune" data-arg="${att[i].id}"><div>${esc(att[i].name)}</div></div>` : `<div class="sock"><div class="muted">Empty socket</div></div>`).join('')}</div><p class="muted" style="margin:10px 0 0;font-size:.9em">Tap an attuned item to end attunement. Tap "Attune" on an item below to socket it.</p></section>
+      <section class="panel"><div class="ph"><h2>Attunement</h2><span class="muted">${att.length} of ${maxAtt}</span></div><div class="sockets">${Array.from({ length: maxAtt }, (_, i) => att[i] ? `<button class="sockc" data-act="attune" data-arg="${att[i].id}" aria-label="End attunement: ${esc(att[i].name)}"><span class="sock full"><span>${esc((att[i].name.match(/\b\w/g) || ['?']).slice(0, 2).join(''))}</span></span><b>${esc(att[i].name)}</b></button>` : `<div class="sockc"><span class="sock"><span></span></span><b class="muted">Empty socket</b></div>`).join('')}</div><p class="muted" style="margin:10px 0 0;font-size:.9em">Tap an attuned item to end attunement. Tap "Attune" on an item below to socket it.</p></section>
       <section class="panel"><div class="ph"><h2>Inventory</h2><button class="btn sm edit-only" data-act="add" data-arg="item">${I.plus} Add</button></div><div class="rows items">${c.items.map(i => `<div class="row" style="align-items:flex-start"><span class="qty">${i.qty}×</span><div class="nm"><b>${esc(i.name)}</b>${i.equipped ? ' <span class="tag">Equipped</span>' : ''}${i.attuned ? ' <span class="tag m">Attuned</span>' : ''}${i.desc ? `<div class="muted" style="font-size:.9em">${esc(i.desc)}</div>` : ''}</div>${i.attune && !i.attuned ? `<button class="btn sm" data-act="attune" data-arg="${i.id}">Attune</button>` : ''}<button class="btn sm edit-only" data-act="edititem" data-arg="item:${i.id}">${I.edit}</button></div>`).join('') || '<div class="empty">Nothing carried.</div>'}</div></section>
       <section class="panel"><div class="ph"><h2>Coin</h2></div><div class="coins">${['cp', 'sp', 'ep', 'gp', 'pp'].map(k => `<label class="coin"><span class="lbl">${k.toUpperCase()}</span><input id="coin-${k}" inputmode="numeric" value="${c.coins[k]}" data-coin="${k}" aria-label="${k.toUpperCase()}"></label>`).join('')}</div></section>
+    </div></div>`;
+}
+/* --- party (local; live sync comes later) --- */
+function partyState() { if (!DB.party) DB.party = { list: [], turn: 0, round: 1 }; return DB.party; }
+function partyHTML(c) {
+  const P = partyState();
+  const strip = DB.chars.map((k, i) => {
+    const r = compute(k), max = r.stats.hpmax.v, cur = k.hp.cur, tmp = k.hp.temp, tot = Math.max(max, cur + tmp), bl = cur > 0 && cur <= max / 2;
+    return `<button class="pmem${i === DB.cur ? ' me' : ''}${bl ? ' bl' : ''}" data-act="swap" data-arg="${i}" aria-label="${esc(k.name)}${i === DB.cur ? ' (open)' : ', tap to open'}">
+      <span class="pt"><span>${esc(k.portrait || k.name[0])}</span></span>
+      <span class="pn"><b>${esc(k.name.split(' ')[0])}</b><span>${esc(k.classes.map(x => x.name + ' ' + x.lvl).join(' / '))}</span></span>
+      <span class="hp"><i style="width:${(cur / tot * 100).toFixed(1)}%"></i>${tmp ? `<i class="t" style="left:${(cur / tot * 100).toFixed(1)}%;width:${(tmp / tot * 100).toFixed(1)}%"></i>` : ''}<s style="left:${(max / 2 / tot * 100).toFixed(1)}%"></s></span>
+      <span class="st"><b>${cur}</b>/ ${max} · AC <b>${r.stats.ac.v}</b>${bl ? ' <span class="cond">Bloodied</span>' : ''}${cur === 0 ? ' <span class="cond">Down</span>' : ''}${k.conc ? ` <span class="cond c">${esc(k.conc)}</span>` : ''}${k.conditions.map(x => ` <span class="cond">${esc(x)}</span>`).join('')}</span></button>`;
+  }).join('');
+  const rows = P.list.map((e, i) => `<div class="irow${i === P.turn ? ' cur' : ''}${e.foe ? ' foe' : ''}${i < P.turn ? ' done' : ''}"><span class="iv">${e.init}</span><span class="in"><b>${esc(e.name)}</b><small>${esc(e.note || (e.foe ? 'Enemy' : 'Ally'))}</small></span>${i === P.turn ? '<span class="now">NOW</span>' : '<span></span>'}<button class="x" data-act="pdel" data-arg="${esc(e.id)}" aria-label="Remove ${esc(e.name)}">✕</button></div>`).join('');
+  return `<div class="stack">
+    <section class="panel"><div class="ph"><h2>Party</h2><span class="muted">Characters on this tablet. Tap one to open it.</span></div><div class="pstrip">${strip}</div></section>
+    <div class="grid2" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)">
+      <section class="panel hot"><div class="ph"><h2>Initiative</h2><span class="rn">Round ${P.round}</span></div>
+        <div class="init">${rows || '<div class="empty">No one in the order yet. Roll yourself in, then add allies and enemies.</div>'}</div>
+        <div class="btnrow" style="margin-top:12px"><button class="btn pri" data-act="proll">Roll ${esc(c.name.split(' ')[0])} in (${sgn(R.stats.init.v)})</button><button class="btn" data-act="padd">${I.plus} Add creature</button><span style="flex:1"></span>${P.list.length ? '<button class="btn" data-act="pnext">Next turn</button><button class="btn dng" data-act="pclear">Clear</button>' : ''}</div></section>
+      <section class="panel"><div class="ph"><h2>Live table</h2><span class="tag">Coming next</span></div>
+        <p class="muted" style="margin:0 0 10px">Next step: a join code so your DM can see party HP and conditions, push roll requests to you, and share one initiative order.</p>
+        <p class="muted" style="margin:0">For now the tracker lives on this tablet, which works well when one tablet sits in the middle of the table.</p></section>
     </div></div>`;
 }
 function notesHTML(c) {

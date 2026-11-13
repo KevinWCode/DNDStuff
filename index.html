@@ -297,6 +297,219 @@ body.editing .ab,body.editing .tile{outline:1px dashed var(--accent);outline-off
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 @media (max-width:720px){.cards{--lane-h:96px}.lane header b{font-size:.95em}.mode button{padding:8px 14px}}
 
+/* ===== HUD layer (direction A mockup): hex gems, HP ring, plate panels, glowing dock, one nav row.
+   Loads after style.css and before themes.css, so the style-guide themes still restyle colours, borders and radii. ===== */
+:root{--f-hud:"Rajdhani","Barlow Semi Condensed","Arial Narrow",sans-serif;--f-display:var(--f-hud);--r:4px;--nav-h:0px}
+/* every theme uses the HUD type, as in the mockup (beats the per-theme font in themes.css) */
+:root[data-skin][data-skin]{--f-display:var(--f-hud)}
+.hex{clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+
+/* ---------- top bar ---------- */
+.top-in{flex-wrap:nowrap;padding-block:0;min-height:64px;gap:12px}
+.sigil{border:0;border-radius:0;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:color-mix(in srgb,var(--accent) 24%,var(--panel2));color:var(--accent);font-family:var(--f-hud);font-weight:700;width:44px;height:48px}
+.who{flex:0 1 auto;min-width:90px}
+.who h1{font-family:var(--f-hud);font-weight:700;text-transform:uppercase;letter-spacing:.02em;font-size:1.4em}
+.who .sub{font-size:.82em}
+.nav{display:flex;align-self:stretch;margin-left:6px;flex:none}
+.nav button{border:0;background:none;font-family:var(--f-hud);font-weight:700;letter-spacing:.11em;text-transform:uppercase;font-size:.84em;color:var(--muted);padding:0 10px;display:flex;align-items:center;gap:7px;position:relative;min-height:64px;white-space:nowrap}
+.nav button i{width:9px;height:9px;rotate:45deg;border:1.5px solid currentColor;display:block;flex:none}
+.nav button.on{color:var(--ink)}
+.nav button.on i{background:var(--accent);border-color:var(--accent);box-shadow:0 0 10px rgba(var(--glow),.7)}
+.nav button.on::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:3px;background:var(--accent)}
+.grow{flex:1 1 0;min-width:0}
+.rnd{font-family:var(--f-hud);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:.9em;padding:8px 16px;border:1px solid rgba(var(--glow),.55);color:var(--accent);clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);white-space:nowrap}
+.minihp{display:grid;grid-template-columns:auto 110px;gap:2px 10px;align-items:center;font-size:.75em;color:var(--muted);border:0;background:none;padding:4px;text-align:left}
+.minihp b{font-family:var(--f-hud);font-size:1.75em;color:var(--ink);grid-row:1/3;line-height:1}
+.minihp .hb{height:6px;background:var(--line);position:relative;display:block}
+.minihp .hb i{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+.minihp .hb i.t{background:var(--temp)}
+.minihp.bl b,.minihp.bl .hb i:first-child{color:var(--bad);background:var(--bad)}
+.minihp.bl b{background:none}
+.tools{flex-wrap:nowrap;gap:6px;flex:none}
+.tbtn{min-width:44px;min-height:44px;padding:0 8px;border-radius:var(--r);position:relative}
+.tbtn small{position:absolute;top:2px;right:4px;font-family:var(--f-hud);font-weight:700;font-size:.7em;color:var(--accent);letter-spacing:0}
+
+/* ---------- panels ---------- */
+.panel{background:linear-gradient(170deg,var(--panel2),var(--panel));border-radius:var(--r)}
+.panel.hot::before{content:"";position:absolute;left:-1px;top:-1px;width:14px;height:14px;border-left:2px solid var(--accent);border-top:2px solid var(--accent);pointer-events:none}
+.ph{margin-bottom:12px}
+.ph h2{font-family:var(--f-hud);font-weight:700;font-size:.8em;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:10px;flex:1}
+.ph h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+.ph>.muted,.ph>span{font-size:.85em}
+.tile,.ab,.atk,.card,.face,.lane,.chip,.btn,.coin,.step,.pad button,.hpacts button,.hpin .disp,.levelbar button{border-radius:var(--r)}
+.tile .v,.ab .m,.atk .hit,.row .val,.step span,.rn,.toast .big,.hpin .disp,.pad button,.coin input,.lane header b,.slotrow .lv,.passive b{font-family:var(--f-hud);font-weight:700}
+.tile .v{font-size:2.1em}
+.lbl{font-family:var(--f-hud);letter-spacing:.16em}
+.pm i{border-radius:1px;rotate:45deg;width:10px;height:10px}
+.pm.p2 i{transform:none;box-shadow:0 0 0 2px var(--panel),0 0 0 3.5px var(--accent2);background:var(--accent2)}
+.row .val{font-size:1.3em}
+
+/* ---------- hex ability gems ---------- */
+.abil{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.abil.six{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.gemcol{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.ab.gem{clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:var(--line);padding:2px;border:0;border-radius:0;min-height:0;width:100%;max-width:120px;aspect-ratio:1/1.12}
+.ab.gem .gi{clip-path:inherit;width:100%;height:100%;background:linear-gradient(160deg,var(--panel2),var(--panel)),var(--bg);display:grid;place-content:center;text-align:center}
+.ab.gem .m{font-size:2.3em;margin:0;line-height:1}
+.ab.gem .s{border:0;padding:0;margin:0;font-size:.85em}
+.ab.gem .lbl{letter-spacing:.18em}
+.ab.gem.hi{background:var(--accent);filter:drop-shadow(0 0 8px rgba(var(--glow),.35))}
+.ab.gem.hi .m{color:var(--accent)}
+.ab.gem.ovr::after{display:none}
+.ab.gem.ovr .s{color:var(--accent2);font-weight:700}
+.gsv{font-size:.82em;color:var(--muted);white-space:nowrap;padding:4px 6px;user-select:none;position:relative}
+.gsv b{font-family:var(--f-hud);font-size:1.25em;color:var(--ink)}
+.gsv.p b{color:var(--accent)}
+body.editing .ab.gem{outline:0}
+body.editing .ab.gem .gi{box-shadow:inset 0 0 0 2px var(--accent)}
+
+/* ---------- HP ring ---------- */
+.ring{position:relative;width:min(250px,100%);aspect-ratio:1;margin:0 auto -6px;user-select:none}
+.ring svg{display:block;width:100%;height:100%}
+.ring .hpf{stroke:var(--ink)}
+.ring.bl .hpf{stroke:var(--bad)}
+.ring .ctr{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}
+.ring .big{font-family:var(--f-hud);font-weight:700;font-size:4.2em;line-height:.9}
+.ring .of{color:var(--muted);font-weight:600}
+.ring .tmp{color:var(--temp);font-weight:700;letter-spacing:.06em;font-size:.95em}
+.ring .bl-at{position:absolute;left:0;right:0;bottom:6%;text-align:center;font-family:var(--f-hud);font-weight:700;letter-spacing:.16em;font-size:.72em;color:var(--bad)}
+.ring.bl .bl-at{animation:pulse-t 1.6s ease-in-out infinite}
+@keyframes pulse-t{50%{opacity:.45}}
+.ring.down .big{color:var(--bad)}
+.hp .ph{margin-bottom:0}
+.ds button{border-radius:0;rotate:45deg;width:34px;height:34px;margin:4px}
+.hpacts button{font-family:var(--f-hud);font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+
+/* ---------- attacks ---------- */
+.atk{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"n h" "d h";background:linear-gradient(170deg,var(--panel2),var(--panel));position:relative;padding:12px 14px;gap:4px 14px}
+.atk::before{content:"";position:absolute;left:-1px;top:-1px;width:12px;height:12px;border-left:2px solid var(--accent);border-top:2px solid var(--accent)}
+.atk .an{grid-area:n;min-width:0}
+.atk .an b{font-family:var(--f-hud);font-weight:700;font-size:1.3em;text-transform:uppercase;letter-spacing:.03em}
+.atk .hit{grid-area:h;font-size:2.4em;align-self:center;text-align:right}
+.atk .dm{grid-area:d;text-align:left;font-weight:600}
+.atk .dm small{display:inline;margin-left:6px}
+.chip{border-radius:var(--r);font-weight:600}
+.chip.on{box-shadow:0 0 12px rgba(var(--glow),.3)}
+
+/* ---------- slots, pips, movement ---------- */
+.pip{border-radius:0;rotate:45deg;width:28px;height:28px;margin:4px}
+.pip.drain::after{border-radius:0}
+.moves button{border-radius:0;width:26px;height:26px}
+.roundbox .rn{font-size:1.6em;text-transform:uppercase;letter-spacing:.06em}
+
+/* ---------- combat layout ---------- */
+.hud{grid-template-columns:minmax(280px,.85fr) minmax(0,1.45fr) minmax(0,1fr)}
+.hud .hcol .tiles{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:1100px){
+  .hud{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)}
+  .hud>.hpcol,.hud>.hcol{grid-column:auto}
+  .hud>.rcol{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+  .abil.six{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:720px){.hud{grid-template-columns:minmax(0,1fr)}.hud>.rcol{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- dock: glowing lanes + End Turn plate ---------- */
+.dock{background:var(--bg2)}
+.dock-in{grid-template-columns:repeat(4,minmax(0,1fr)) minmax(140px,190px)}
+.lane header b{text-transform:uppercase;letter-spacing:.12em;font-size:1em}
+.lane.avail header .gem{box-shadow:0 0 12px rgba(var(--glow),.9)}
+@media (prefers-reduced-motion:no-preference){.lane.avail{animation:lane-glow 2.6s ease-in-out infinite}@keyframes lane-glow{50%{box-shadow:0 0 0 1px rgba(var(--glow),.45),0 0 26px rgba(var(--glow),.35)}}}
+.dock .endturn{border-radius:0;clip-path:polygon(16px 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%,0 16px);background:var(--ink);color:var(--bg);box-shadow:none;font-family:var(--f-hud);font-weight:700;font-size:1.55em;letter-spacing:.14em;display:grid;place-content:center;gap:2px;min-height:64px}
+.dock .endturn small{font-family:var(--f-ui);font-size:.5em;letter-spacing:.1em;opacity:.7;font-weight:600}
+.endturn{font-family:var(--f-hud);border-radius:var(--r)}
+@media (max-width:1000px){.dock-in{grid-template-columns:repeat(4,minmax(0,1fr))}.dock .endturn{grid-column:1/-1;min-height:52px;grid-auto-flow:column;align-items:center;gap:14px}}
+@media (max-width:720px){.dock-in{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* ---------- spells ---------- */
+.srail{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(220px,auto);gap:18px;align-items:center}
+.srail .tiles{grid-template-columns:repeat(2,96px)}
+.concbox{display:flex;align-items:center;gap:12px;border:1px solid var(--accent);padding:8px 8px 8px 14px;background:rgba(var(--glow),.07);border-radius:var(--r)}
+.concbox .rg{width:34px;height:34px;border-radius:50%;border:2px solid var(--accent);display:grid;place-items:center;box-shadow:0 0 14px rgba(var(--glow),.5);flex:none}
+.concbox .rg i{width:12px;height:12px;border-radius:50%;background:var(--accent)}
+.concbox div{flex:1;line-height:1.15;min-width:0}
+.concbox b{font-family:var(--f-hud);font-size:1.15em;text-transform:uppercase;letter-spacing:.06em}
+.concbox span:not(.rg){display:block;font-size:.8em;color:var(--muted)}
+.concbox.off{border-color:var(--line);background:none}
+.concbox.off .rg{border-color:var(--line);box-shadow:none}
+@media (max-width:1000px){.srail{grid-template-columns:minmax(0,1fr) auto}.srail .concbox{grid-column:1/-1}}
+@media (max-width:560px){.srail{grid-template-columns:minmax(0,1fr)}}
+.lg{display:inline-grid;place-items:center;width:18px;height:18px;font-family:var(--f-hud);font-weight:700;font-size:.7em;border:1.5px solid currentColor;vertical-align:-3px;flex:none}
+.lg.A{border-radius:50%}
+.lg.B{clip-path:polygon(50% 0,100% 100%,0 100%);border:0;background:currentColor}
+.lg.R{rotate:45deg;width:13px;height:13px;margin:0 2px}
+.lg.F{border-radius:2px;width:14px;height:14px}
+.sp .face .sptop{display:flex;gap:10px;align-items:flex-start}
+.sp .face .lvl{position:static;width:36px;height:40px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:var(--line);display:grid;place-items:center;font-family:var(--f-hud);font-weight:700;font-size:1.15em;color:var(--ink);flex:none;line-height:1}
+.sp .face .lvl.c{background:var(--panel2);color:var(--muted);box-shadow:inset 0 0 0 2px var(--line)}
+.sp .face h3{font-family:var(--f-hud);font-weight:700;text-transform:uppercase;font-size:1.2em;padding-right:0;line-height:1.05;letter-spacing:.02em}
+.sp .face::before{content:"";position:absolute;left:-1px;top:-1px;width:12px;height:12px;border-left:2px solid var(--accent);border-top:2px solid var(--accent)}
+.sp .face .meta{border-top:1px solid var(--line);padding-top:8px}
+.sp.active .face:not(.back){border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 22px rgba(var(--glow),.28)}
+
+/* ---------- gear ---------- */
+.sockets{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:14px}
+.sockc{display:grid;justify-items:center;gap:8px;text-align:center;border:0;background:none;padding:0;color:inherit}
+.sockc b{font-family:var(--f-hud);font-size:1em;line-height:1.1}
+.sock{width:96px;height:108px;padding:2px;background:var(--line)}
+.sock>span{width:100%;height:100%;clip-path:inherit;display:grid;place-items:center;background:repeating-linear-gradient(45deg,var(--panel) 0 6px,var(--panel2) 6px 12px)}
+.sock.full{background:var(--accent);filter:drop-shadow(0 0 10px rgba(var(--glow),.4))}
+.sock.full>span{background:radial-gradient(circle at 50% 40%,rgba(var(--glow),.3),var(--panel2) 70%),var(--bg);font-family:var(--f-hud);font-weight:700;font-size:1.7em;color:var(--accent)}
+.coin{display:flex;flex-direction:column;align-items:center;gap:4px}
+.coin .lbl{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;letter-spacing:0;font-size:.7em}
+.coin:has(#coin-gp) .lbl{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- party ---------- */
+.pstrip{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.pmem{display:grid;grid-template-columns:56px minmax(0,1fr);gap:5px 12px;align-items:center;padding:10px 12px;text-align:left;border:1px solid var(--line);background:linear-gradient(170deg,var(--panel2),var(--panel));border-radius:var(--r);color:inherit;position:relative}
+.pmem .pt{grid-row:1/4;width:56px;height:62px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:var(--line);padding:2px}
+.pmem .pt span{width:100%;height:100%;clip-path:inherit;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,var(--panel2),var(--panel)),var(--bg);font-family:var(--f-hud);font-weight:700;font-size:1.5em}
+.pmem.me{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 20px rgba(var(--glow),.22)}
+.pmem.me .pt{background:var(--accent)}
+.pmem.me .pt span{color:var(--accent)}
+.pmem .pn{display:flex;justify-content:space-between;gap:8px;align-items:baseline;min-width:0}
+.pmem .pn b{font-family:var(--f-hud);font-size:1.15em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pmem .pn span{font-size:.78em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pmem .hp{height:8px;background:var(--line);position:relative;display:block}
+.pmem .hp i{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+.pmem .hp i.t{background:var(--temp)}
+.pmem .hp s{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--bad)}
+.pmem.bl .hp i:first-child{background:var(--bad)}
+.pmem .st{font-size:.8em;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.pmem .st b{font-family:var(--f-hud);font-size:1.2em;color:var(--ink)}
+.cond{font-size:.82em;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--bad);color:var(--bad);padding:0 6px}
+.cond.c{border-color:var(--accent);color:var(--accent)}
+.init{display:flex;flex-direction:column;gap:6px}
+.irow{display:grid;grid-template-columns:52px minmax(0,1fr) auto 44px;gap:12px;align-items:center;padding:8px 12px;border:1px solid var(--line);background:var(--panel);border-radius:var(--r)}
+.irow .iv{font-family:var(--f-hud);font-weight:700;font-size:1.7em;text-align:center;line-height:1}
+.irow .in b{font-family:var(--f-hud);font-size:1.15em;text-transform:uppercase;letter-spacing:.03em}
+.irow .in small{display:block;color:var(--muted);font-size:.8em}
+.irow.foe{background:repeating-linear-gradient(135deg,var(--panel) 0 10px,var(--panel2) 10px 20px)}
+.irow.foe .iv{color:var(--bad)}
+.irow.cur{border-color:var(--accent);box-shadow:0 0 18px rgba(var(--glow),.25)}
+.irow.done{opacity:.55}
+.irow .now{font-family:var(--f-hud);font-weight:700;font-size:.75em;letter-spacing:.16em;background:var(--accent);color:var(--bg);padding:2px 8px}
+.irow .x{width:44px;height:44px;border:1px solid var(--line);background:none;border-radius:var(--r);color:var(--muted)}
+
+/* ---------- overlays ---------- */
+.xray{background:var(--bg);color:var(--ink);border:1px solid var(--accent);border-radius:var(--r);box-shadow:0 12px 30px rgba(0,0,0,.5),0 0 24px rgba(var(--glow),.2)}
+.xray .x-ov button{background:var(--panel2);color:var(--ink)}
+.toast{border-radius:var(--r)}
+
+/* ---------- portrait / narrow: nav becomes a bottom tab bar ---------- */
+@media (max-width:1000px){
+  :root{--nav-h:62px}
+  .who .sub{display:none}
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:45;background:var(--bg2);border-top:1px solid var(--line);margin:0;padding-bottom:env(safe-area-inset-bottom,0px);display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+  .nav button{flex-direction:column;justify-content:center;gap:6px;min-height:var(--nav-h);padding:0;font-size:.74em;letter-spacing:.08em}
+  .nav button.on::after{top:0;bottom:auto}
+  main{padding-bottom:calc(var(--nav-h) + 40px + env(safe-area-inset-bottom,0px))}
+  body.combat main{padding-bottom:calc(var(--dock-h,320px) + 24px)}
+  .dock{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));padding-bottom:10px}
+  .toast{bottom:calc(var(--toast-b,calc(var(--nav-h) + 24px)) + env(safe-area-inset-bottom,0px))}
+}
+@media (max-width:560px){.minihp{grid-template-columns:auto}.minihp span:not(.hb){display:none}.minihp .hb{display:none}.tools .tbtn[data-act="short"],.tools .tbtn[data-act="long"]{display:none}}
+.sp,.sp .in{min-height:252px}
+
 /* Themes from "Personal API colour and theme style guide" (generated by gen-themes.js) */
 :root[data-skin="daylight"]{--page:#F3F4F1;--bg:#F3F4F1;--bg2:#F3F4F1;--panel:#FFFFFF;--panel2:#F3F4F1;--line:#E3E5E1;--axis:#C9CCC6;--ink:#16191D;--muted:#5B6168;--accent:#2457D6;--accent2:#163A99;--glow:36,87,214;--good:#1F6B3A;--warn:#B4501A;--bad:#B4501A;--temp:#9DB5F0;--raised:#16191D;--on-raised:#FFFFFF;--dark-sub:#C5CAD1;--raised-track:#2E343B;--soft:#E8EEFC;--soft-ink:#163A99;--soft-line:#C3D3F8;--r:20px;--f-display:"Space Grotesk",Inter,system-ui,sans-serif;--f-ui:Inter,Inter,system-ui,sans-serif;color-scheme:light}
 :root[data-skin="daylight"] body{background:var(--page);background-attachment:fixed}
@@ -786,33 +999,41 @@ function render() {
   $('#top').innerHTML = topHTML(c);
   const main = $('#main');
   const sy = window.scrollY;
-  main.innerHTML = DB.ui.mode === 'combat' ? combatHTML(c) : ({ sheet: sheetHTML, spells: spellsHTML, gear: gearHTML, notes: notesHTML, log: logHTML }[DB.ui.tab] || sheetHTML)(c);
+  main.innerHTML = DB.ui.mode === 'combat' ? combatHTML(c) : ({ sheet: sheetHTML, spells: spellsHTML, gear: gearHTML, party: partyHTML, notes: notesHTML, log: logHTML }[DB.ui.tab] || sheetHTML)(c);
   const slot = $('#inkSlot'); if (slot) { slot.appendChild(INK.el); INK.fit(); }
   $('#dock').hidden = DB.ui.mode !== 'combat';
   if (DB.ui.mode === 'combat') { $('#dock').innerHTML = dockHTML(c); requestAnimationFrame(sizeDock); }
+  else { document.body.style.removeProperty('--dock-h'); document.body.style.removeProperty('--toast-b'); }
   window.scrollTo(0, sy);
   if (ui.xray && ui.xray.pinned) showXray(ui.xray.key, null, true);
   postAnim();
 }
 let pendingAnim = [];
 function postAnim() { pendingAnim.forEach(([sel, cls]) => { const el = document.querySelector(sel); if (el) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); } }); pendingAnim = []; }
-function sizeDock() { const d = $('#dock'); if (!d) return; document.body.style.setProperty('--dock-h', d.offsetHeight + 'px'); document.body.style.setProperty('--toast-b', (d.offsetHeight + 16) + 'px'); }
+function sizeDock() { const d = $('#dock'); if (!d || d.hidden) return; const fromBottom = window.innerHeight - d.getBoundingClientRect().top; document.body.style.setProperty('--dock-h', fromBottom + 'px'); document.body.style.setProperty('--toast-b', (fromBottom + 16) + 'px'); }
 
+const NAV = [['combat', 'Combat'], ['sheet', 'Sheet'], ['spells', 'Spells'], ['gear', 'Gear'], ['party', 'Party'], ['notes', 'Notes'], ['log', 'Log']];
 function topHTML(c) {
   const cls = c.classes.map(k => k.name + ' ' + k.lvl).join(' / ');
   const st = undoStacks[c.id] || [];
-  const tabs = DB.ui.mode === 'explore' ? `<nav class="wrap tabs" aria-label="Sheet sections">${[['sheet', 'Sheet'], ['spells', c.casting ? 'Spells' : 'Spells'], ['gear', 'Gear & Attacks'], ['notes', 'Notes'], ['log', 'Changelog']].map(([k, n]) => `<button data-act="tab" data-arg="${k}" class="${DB.ui.tab === k ? 'on' : ''}">${n}</button>`).join('')}</nav>` : '';
+  const view = DB.ui.mode === 'combat' ? 'combat' : DB.ui.tab;
+  const max = R.stats.hpmax.v, cur = c.hp.cur, tmp = c.hp.temp, tot = Math.max(max, cur + tmp);
+  const status = DB.ui.mode === 'combat'
+    ? `<span class="rnd">Round ${c.turn.round}</span>`
+    : `<button class="minihp${R.bloodied ? ' bl' : ''}" data-act="go" data-arg="combat" aria-label="Hit points ${cur} of ${max}${tmp ? ', ' + tmp + ' temporary' : ''}. Open combat"><b>${cur}</b><span>HP ${cur} / ${max}${tmp ? ' · +' + tmp : ''}</span><span class="hb"><i style="width:${(cur / tot * 100).toFixed(1)}%"></i>${tmp ? `<i class="t" style="left:${(cur / tot * 100).toFixed(1)}%;width:${(tmp / tot * 100).toFixed(1)}%"></i>` : ''}</span></button>`;
   return `<div class="wrap top-in">
     <button class="sigil" data-act="menu" aria-label="Characters and settings">${esc(c.portrait || c.name[0])}</button>
     <div class="who"><h1>${esc(c.name)}</h1><div class="sub">${esc(c.species)} ${esc(cls)} · ${c.ruleset === '2024' ? '2024 rules' : '2014 rules'}</div></div>
-    <div class="mode" role="tablist"><button data-act="mode" data-arg="explore" class="${DB.ui.mode === 'explore' ? 'on' : ''}">Explore</button><button data-act="mode" data-arg="combat" class="${DB.ui.mode === 'combat' ? 'on' : ''}">Combat</button></div>
+    <nav class="nav" aria-label="Screens">${NAV.map(([k, n]) => `<button data-act="go" data-arg="${k}" class="${view === k ? 'on' : ''}" ${view === k ? 'aria-current="page"' : ''}><i></i>${n}</button>`).join('')}</nav>
+    <span class="grow"></span>
+    ${status}
     <div class="tools">
-      <button class="tbtn" data-act="undo" ${st.length ? '' : 'disabled'} aria-label="Undo">${I.undo}<small>Undo${st.length ? ' ' + st.length : ''}</small></button>
-      <button class="tbtn ${ui.editing ? 'on' : ''}" data-act="edit" aria-label="Edit lock">${ui.editing ? I.edit : I.lock}<small>${ui.editing ? 'Editing' : 'Locked'}</small></button>
-      <button class="tbtn" data-act="short" aria-label="Short rest">${I.fire}<small>Short</small></button>
-      <button class="tbtn" data-act="long" aria-label="Long rest">${I.moon}<small>Long</small></button>
-      <button class="tbtn" data-act="menu" aria-label="Menu">${I.menu}<small>Menu</small></button>
-    </div></div>${tabs}`;
+      <button class="tbtn" data-act="undo" ${st.length ? '' : 'disabled'} aria-label="Undo${st.length ? ' (' + st.length + ')' : ''}" title="Undo">${I.undo}${st.length ? `<small>${st.length}</small>` : ''}</button>
+      <button class="tbtn ${ui.editing ? 'on' : ''}" data-act="edit" aria-label="${ui.editing ? 'Editing unlocked. Tap to lock' : 'Sheet locked. Tap to edit'}" title="${ui.editing ? 'Editing' : 'Locked'}">${ui.editing ? I.edit : I.lock}</button>
+      <button class="tbtn" data-act="short" aria-label="Short rest" title="Short rest">${I.fire}</button>
+      <button class="tbtn" data-act="long" aria-label="Long rest" title="Long rest">${I.moon}</button>
+      <button class="tbtn" data-act="menu" aria-label="Menu" title="Menu">${I.menu}</button>
+    </div></div>`;
 }
 const xa = (key, extra = '') => `data-x="${key}" ${R.stats[key] && R.stats[key].ov ? 'data-ov="1"' : ''} ${extra}`;
 const ovc = key => R.stats[key] && R.stats[key].ov ? ' ovr' : '';
@@ -831,7 +1052,6 @@ function vitalsTiles(c, combat) {
 function hpPanel(c, combat) {
   const max = R.stats.hpmax.v, cur = c.hp.cur, tmp = c.hp.temp;
   const pct = Math.max(0, Math.min(1, cur / max)), tot = Math.max(max, cur + tmp);
-  const hue = Math.round(pct * 120), col = `hsl(${hue} 70% ${cur ? 45 : 30}%)`;
   const targets = [['me', 'Me']].concat((c.summons || []).map(m => [m.id, m.name.split(' (')[0]]));
   const hasForm = (c.summons || []).find(m => m.absorb && m.active);
   const pad = ['1', '2', '3', '4', '5', '+', '6', '7', '8', '9', '0', '⌫'].map(k => `<button data-act="kp" data-arg="${k}" aria-label="${k === '⌫' ? 'Backspace' : k === 'C' ? 'Clear' : k}">${k}</button>`).join('');
@@ -848,8 +1068,7 @@ function hpPanel(c, combat) {
   }
   return `<section class="panel hp ${combat ? 'hot' : ''} hpcol" id="hpPanel" aria-label="Hit points">
     <div class="ph"><h2>Hit Points</h2><span>${R.bloodied ? '<span class="badge blood">Bloodied</span>' : ''} ${c.conc ? `<button class="badge conc" data-act="dropconc" style="border-radius:999px">Concentrating: ${esc(c.conc)} ✕</button>` : ''}</span></div>
-    <div class="hpnum" ${xa('hpmax')}><span class="big">${cur}</span><span class="muted">/ ${max}</span>${tmp ? `<span class="tmp">+${tmp} temp</span>` : ''}</div>
-    <div class="hpbar" aria-hidden="true"><div class="f" style="width:${(cur / tot * 100).toFixed(1)}%;background:${col}"></div><div class="t" style="left:${(cur / tot * 100).toFixed(1)}%;width:${(tmp / tot * 100).toFixed(1)}%"></div><div class="txt">${Math.round(pct * 100)}%</div></div>
+    ${hpRing(cur, max, tmp, R.bloodied)}
     ${death}
     ${targets.length > 1 ? `<div class="chips" aria-label="Apply to">${targets.map(([id, n]) => `<button class="chip ${ui.target === id ? 'on' : ''}" data-act="target" data-arg="${id}">${esc(n)}</button>`).join('')}</div>` : ''}
     <div class="hpin"><div class="disp" aria-live="polite" data-act="kp" data-arg="C" title="Tap to clear"><em>${ui.hpIn && parsed && /\+/.test(ui.hpIn) ? '= ' + parsed.n : 'Amount'}</em>${esc(ui.hpIn) || '0'}</div>
@@ -859,6 +1078,17 @@ function hpPanel(c, combat) {
   </section>`;
 }
 
+function hpRing(cur, max, tmp, blood) {
+  const c = 120, r = 100, arc = .78, rot = 90 + (1 - arc) * 180, C = 2 * Math.PI * r, r2 = r + 12, C2 = 2 * Math.PI * r2;
+  const f = Math.max(0, Math.min(1, cur / max)), tf = Math.min(1, tmp / max), toff = f + tf <= 1 ? f : Math.max(0, 1 - tf);
+  const ticks = Array.from({ length: 11 }, (_, i) => { const a = (rot + i * arc * 36) * Math.PI / 180, h = i === 5, r1 = 84, rr = h ? 74 : 79; return `<line x1="${(c + Math.cos(a) * r1).toFixed(1)}" y1="${(c + Math.sin(a) * r1).toFixed(1)}" x2="${(c + Math.cos(a) * rr).toFixed(1)}" y2="${(c + Math.sin(a) * rr).toFixed(1)}" style="stroke:var(${h ? '--bad' : '--line'})" stroke-width="${h ? 3 : 1.5}"/>`; }).join('');
+  return `<div class="ring${blood ? ' bl' : ''}${cur === 0 ? ' down' : ''}" ${xa('hpmax')}><svg viewBox="0 0 240 240" aria-hidden="true"><g transform="rotate(${rot} ${c} ${c})">
+    <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke-width="15" style="stroke:var(--line)" stroke-dasharray="${(C * arc).toFixed(1)} ${C.toFixed(1)}"/>
+    <circle class="hpf" cx="${c}" cy="${c}" r="${r}" fill="none" stroke-width="15" stroke-dasharray="${(C * arc * f).toFixed(1)} ${C.toFixed(1)}"/>
+    ${tmp ? `<circle cx="${c}" cy="${c}" r="${r2}" fill="none" stroke-width="6" style="stroke:var(--temp)" stroke-dasharray="${(C2 * arc * tf).toFixed(1)} ${(C2 * 2).toFixed(1)}" stroke-dashoffset="${(-C2 * arc * toff).toFixed(1)}"/>` : ''}</g>${ticks}</svg>
+    <div class="ctr"><span class="big">${cur}</span><span class="of">of ${max}</span>${tmp ? `<span class="tmp">+${tmp} TEMP</span>` : ''}</div>
+    <div class="bl-at">${blood ? 'BLOODIED' : 'BLOODIED AT ' + Math.floor(max / 2)}</div></div>`;
+}
 function savesHTML(c) {
   return `<section class="panel"><div class="ph"><h2>Saving Throws</h2></div><div class="rows">${ABIL.map(a => {
     const st = R.stats['save_' + a];
@@ -866,7 +1096,10 @@ function savesHTML(c) {
   }).join('')}</div></section>`;
 }
 function abilHTML(c) {
-  return `<section class="panel hot"><div class="ph"><h2>Abilities</h2><button class="btn sm edit-only" data-act="form" data-arg="abil">${I.edit} Scores</button></div><div class="abil">${ABIL.map(a => `<div class="ab${ovc('abil_' + a)}" ${xa('abil_' + a)}><div class="lbl">${ABN[a].slice(0, 3)}</div><div class="m">${sgn(R.mods[a])}</div><span class="s">${c.abilities[a]}</span></div>`).join('')}</div></section>`;
+  return `<section class="panel hot"><div class="ph"><h2>Abilities</h2><button class="btn sm edit-only" data-act="form" data-arg="abil">${I.edit} Scores</button></div>${gemsHTML(c, false)}</section>`;
+}
+function gemsHTML(c, withSaves) {
+  return `<div class="abil${withSaves ? ' six' : ''}">${ABIL.map(a => `<div class="gemcol"><div class="ab gem${ovc('abil_' + a)}${c.casting && c.casting.ability === a ? ' hi' : ''}" ${xa('abil_' + a)}><div class="gi"><div class="lbl">${ABN[a].slice(0, 3)}</div><div class="m">${sgn(R.mods[a])}</div><span class="s">${c.abilities[a]}</span></div></div>${withSaves ? `<div class="gsv${c.saves.includes(a) ? ' p' : ''}${ovc('save_' + a)}" ${xa('save_' + a)}>save <b>${sgn(R.stats['save_' + a].v)}</b></div>` : ''}</div>`).join('')}</div>`;
 }
 function skillsHTML(c) {
   return `<section class="panel"><div class="ph"><h2>Skills</h2><span class="muted" style="font-size:.8em">○ none ● proficient ◆ expertise</span></div><div class="rows">${SKILLS.map(([k, a, n]) => {
@@ -925,7 +1158,7 @@ function attacksHTML(c, onlySet) {
   const list = R.attacks.filter(a => !onlySet || a.inSet);
   return `<section class="panel hot"><div class="ph"><h2>Attacks</h2><button class="btn sm edit-only" data-act="add" data-arg="attack">${I.plus} Add</button></div>
   <div class="sets">${c.sets.map((s, i) => `<button class="chip ${c.activeSet === i ? 'on' : ''}" data-act="set" data-arg="${i}">${esc(s.name)}${s.shield ? ' <span class="ct">+shield</span>' : ''}</button>`).join('')}<button class="chip edit-only" data-act="add" data-arg="set">${I.plus} Set</button></div>
-  ${list.map(a => `<div class="atk${ovc('atk_' + a.w.id)}" ${xa('atk_' + a.w.id)}><div><b>${esc(a.w.name)}</b><div>${a.w.mastery ? `<span class="tag m">${esc(a.w.mastery)}</span>` : ''}<span class="tag">${esc(a.w.props || '')}</span></div></div>
+  ${list.map(a => `<div class="atk${ovc('atk_' + a.w.id)}" ${xa('atk_' + a.w.id)}><div class="an"><b>${esc(a.w.name)}</b><div>${a.w.mastery ? `<span class="tag m">${esc(a.w.mastery)}</span>` : ''}<span class="tag">${esc(a.w.props || '')}</span></div></div>
     <div class="hit">${sgn(a.hit.v)}<small>TO HIT${a.hit.dice.length ? ' ' + a.hit.dice.map(d => '+' + d).join(' ') : ''}</small></div>
     <div class="dm" ${xa('dmg_' + a.w.id)}>${esc(a.dmgTxt)}<small>${esc(a.w.type || '')}</small></div>
     ${ui.editing ? `<button class="btn sm" data-act="edititem" data-arg="attack:${a.w.id}" style="grid-column:1/-1">${I.edit} Edit</button>` : ''}</div>`).join('') || '<div class="empty">No attacks in this weapon set.</div>'}
@@ -940,17 +1173,21 @@ function buffTray(c) {
 function combatHTML(c) {
   const sp = R.stats.speed.v * (c.turn.dash ? 2 : 1), sq = Math.min(48, Math.floor(sp / 5));
   return `<div class="hud">
-    ${hpPanel(c, true)}
+    <div class="stack hcol">${hpPanel(c, true)}<section class="panel">${vitalsTiles(c, true)}</section></div>
     <div class="stack">
-      <section class="panel"><div class="roundbox"><span class="rn">Round ${c.turn.round}</span><span class="muted" style="flex:1">${R.actionsMax > 1 ? R.actionsMax + ' actions this turn' : ''}</span><button class="btn sm" data-act="newcombat">New fight</button><button class="endturn" data-act="endturn">End Turn</button></div></section>
-      <section class="panel">${vitalsTiles(c, true)}
-        <div class="lbl" style="margin:12px 0 6px">Movement · ${sp - c.turn.move * 5} of ${sp} ft left</div>
-        <div class="moves">${Array.from({ length: sq }, (_, i) => `<button class="${i < c.turn.move ? 'u' : ''}" data-act="move" data-arg="${i}" aria-label="Square ${i + 1}"></button>`).join('')}</div>
-        <div class="btnrow" style="margin-top:8px"><button class="chip ${c.turn.dash ? 'on' : ''}" data-act="dash">Dash</button><button class="chip" data-act="moveclear">Reset move</button></div></section>
+      <section class="panel hot"><div class="ph"><h2>Abilities</h2></div>${gemsHTML(c, true)}</section>
+      ${attacksHTML(c, true)}
       ${buffTray(c)}
       ${condHTML(c)}
     </div>
-    <div class="stack">${attacksHTML(c, true)}${slotsHTML(c)}${resourcesHTML(c)}${summonsHTML(c)}</div>
+    <div class="stack rcol">
+      <section class="panel"><div class="roundbox"><span class="rn">Round ${c.turn.round}</span><span class="muted" style="flex:1">${R.actionsMax > 1 ? R.actionsMax + ' actions this turn' : ''}</span><button class="btn sm" data-act="newcombat">New fight</button>${DB.settings.dockOpen ? '' : '<button class="endturn" data-act="endturn">End Turn</button>'}</div></section>
+      ${slotsHTML(c)}${resourcesHTML(c)}
+      <section class="panel"><div class="ph"><h2>Movement</h2><span class="muted">${sp - c.turn.move * 5} of ${sp} ft left</span></div>
+        <div class="moves">${Array.from({ length: sq }, (_, i) => `<button class="${i < c.turn.move ? 'u' : ''}" data-act="move" data-arg="${i}" aria-label="Square ${i + 1}"></button>`).join('')}</div>
+        <div class="btnrow" style="margin-top:8px"><button class="chip ${c.turn.dash ? 'on' : ''}" data-act="dash">Dash</button><button class="chip" data-act="moveclear">Reset move</button></div></section>
+      ${summonsHTML(c)}
+    </div>
   </div>`;
 }
 function laneItems(c, lane) {
@@ -967,23 +1204,30 @@ function dockHTML(c) {
   return `<button class="dock-toggle" data-act="dock">${open ? 'Hide action bar' : 'Show action bar'}</button>
   <div class="wrap dock-in" ${open ? '' : 'hidden'}>${LANES.map(([k, n]) => `<section class="lane ${spent[k] ? 'spent' : k !== 'free' ? 'avail' : ''}" data-lane="${k}">
     <header><span class="gem"></span><b>${n}${k === 'action' && R.actionsMax > 1 ? ' ×' + (R.actionsMax - t.action) : ''}</b>${k !== 'free' ? `<button data-act="lane" data-arg="${k}">${spent[k] ? 'Spent' : 'Mark used'}</button>` : ''}${k === 'action' ? '<button data-act="extra" title="Action Surge, Haste">+1</button>' : ''}</header>
-    <div class="cards">${laneItems(c, k).map(it => `<button class="card ${it.std ? 'std' : ''}" data-act="use" data-arg="${it.k}:${esc(it.id)}:${k}"><b>${esc(it.n)}</b><span>${esc(it.s)}</span></button>`).join('')}</div></section>`).join('')}</div>`;
+    <div class="cards">${laneItems(c, k).map(it => `<button class="card ${it.std ? 'std' : ''}" data-act="use" data-arg="${it.k}:${esc(it.id)}:${k}"><b>${esc(it.n)}</b><span>${esc(it.s)}</span></button>`).join('')}</div></section>`).join('')}
+    <button class="endturn" data-act="endturn">End Turn<small>Round ${t.round}</small></button></div>`;
 }
 
 /* --- spells --- */
+const LG = { action: 'A', bonus: 'B', reaction: 'R', free: 'F' };
 function spellsHTML(c) {
   const f = ui.spellFilter, lf = ui.lvlFilter;
   const lvls = [...new Set(c.spells.map(s => s.lvl))].sort((a, b) => a - b);
   const list = c.spells.filter(s => (f === 'all' || (f === 'conc' && s.conc) || (f === 'ritual' && s.ritual) || s.time === f) && (lf === 'all' || s.lvl === +lf)).sort((a, b) => a.lvl - b.lvl || a.name.localeCompare(b.name));
-  return `<div class="grid2" style="grid-template-columns:minmax(0,1fr) minmax(0,2.4fr)">
-    <div class="stack">${c.casting ? `<section class="panel"><div class="tiles">${tile('dc', 'Spell DC', R.stats.dc.v)}${tile('spellatk', 'Spell Atk', sgn(R.stats.spellatk.v) + diceSmall(R.stats.spellatk))}${tile('abil_' + c.casting.ability, c.casting.ability.toUpperCase(), sgn(R.mods[c.casting.ability]))}</div></section>` : `<section class="panel"><div class="empty">No spellcasting ability set. Unlock editing and use Core to add one.</div></section>`}${slotsHTML(c)}</div>
+  const glyph = t => `<span class="lg ${LG[t] || ''}" aria-hidden="true">${t === 'action' ? 'A' : ''}</span>`;
+  return `<div class="stack">
+    <section class="panel hot srail">
+      ${c.slots.length ? `<div class="slots">${c.slots.map((s, i) => `<div class="slotrow"><span class="lv">${s.label ? esc(s.label) + ' ' : ''}${ord(s.lvl)}</span>${Array.from({ length: s.max }, (_, j) => `<button class="pip ${j >= s.max - s.used ? 'used' : ''}" id="pip-${i}-${j}" data-act="pip" data-arg="${i}:${j}" aria-label="${ord(s.lvl)} level slot ${j + 1}"></button>`).join('')}<span class="muted">${s.rest === 'short' ? 'Short rest' : 'Long rest'}</span></div>`).join('')}<button class="btn sm edit-only" data-act="form" data-arg="slots">${I.edit} Slots</button></div>` : `<div class="empty">${c.casting ? 'No slots set.' : 'No spellcasting ability set. Unlock editing and use Core to add one.'}</div>`}
+      ${c.casting ? `<div class="tiles">${tile('dc', 'Save DC', R.stats.dc.v)}${tile('spellatk', 'Spell Atk', sgn(R.stats.spellatk.v) + diceSmall(R.stats.spellatk))}</div>` : ''}
+      ${c.conc ? `<div class="concbox"><span class="rg"><i></i></span><div><b>${esc(c.conc)}</b><span>Concentrating</span></div><button class="btn sm" data-act="dropconc">Drop</button></div>` : `<div class="concbox off"><span class="rg"></span><div><b>Not concentrating</b><span>Casting a concentration spell shows it here</span></div></div>`}
+    </section>
     <section class="panel"><div class="ph"><h2>Spellbook</h2><span class="btnrow"><button class="btn sm edit-only" data-act="srd">Search SRD</button><button class="btn sm edit-only" data-act="add" data-arg="spell">${I.plus} Add</button></span></div>
-      <div class="filters">${[['all', 'All'], ['conc', 'Concentration'], ['ritual', 'Ritual'], ['action', 'Action'], ['bonus', 'Bonus'], ['reaction', 'Reaction']].map(([k, n]) => `<button class="chip ${f === k ? 'on' : ''}" data-act="sfilter" data-arg="${k}">${n}</button>`).join('')}</div>
+      <div class="filters">${[['all', 'All'], ['conc', 'Concentration'], ['ritual', 'Ritual'], ['action', 'Action'], ['bonus', 'Bonus'], ['reaction', 'Reaction']].map(([k, n]) => `<button class="chip ${f === k ? 'on' : ''}" data-act="sfilter" data-arg="${k}">${LG[k] ? glyph(k) : ''}${n}</button>`).join('')}</div>
       <div class="levelbar" ${c.spells.length ? "" : "hidden"}>${['all'].concat(lvls).map(l => `<button class="${String(lf) === String(l) ? 'on' : ''}" data-act="lfilter" data-arg="${l}">${l === 'all' ? 'All' : l === 0 ? 'C' : l}</button>`).join('')}</div>
-      <div class="spgrid">${list.map(s => `<div class="sp ${ui.flipped.has(s.id) ? 'flip' : ''}" data-act="flip" data-arg="${s.id}" role="button" tabindex="0" aria-label="${esc(s.name)} card, tap to flip">
-        <div class="in"><div class="face"><span class="lvl">${s.lvl || 'C'}</span><h3>${esc(s.name)}</h3><div class="muted">${s.lvl ? ord(s.lvl) + '-level ' : ''}${esc(s.school || '')}${s.lvl ? '' : ' cantrip'}</div>
-          <dl class="meta"><dt>Cast</dt><dd>${TIME[s.time] || esc(s.time)}</dd><dt>Range</dt><dd>${esc(s.range || '—')}</dd><dt>Duration</dt><dd>${esc(s.dur || '—')}</dd><dt>Parts</dt><dd>${esc(s.comp || '—')}</dd></dl>
-          <div class="ftr">${s.area && SHAPES[s.area] ? SHAPES[s.area] : ''}${s.conc ? '<span class="tag m">Concentration</span>' : ''}${s.ritual ? '<span class="tag m">Ritual</span>' : ''}<span class="muted" style="margin-left:auto;font-size:.8em">tap to flip</span></div></div>
+      <div class="spgrid">${list.map(s => `<div class="sp ${ui.flipped.has(s.id) ? 'flip' : ''} ${c.conc && c.conc === s.name ? 'active' : ''}" data-act="flip" data-arg="${s.id}" role="button" tabindex="0" aria-label="${esc(s.name)} card, tap to flip">
+        <div class="in"><div class="face"><div class="sptop"><span class="lvl${s.lvl ? '' : ' c'}">${s.lvl || '∞'}</span><div><h3>${esc(s.name)}</h3><div class="muted">${s.lvl ? ord(s.lvl) + '-level ' : ''}${esc(s.school || '')}${s.lvl ? '' : ' cantrip'}</div></div></div>
+          <dl class="meta"><dt>Cast</dt><dd>${glyph(s.time)} ${TIME[s.time] || esc(s.time)}</dd><dt>Range</dt><dd>${esc(s.range || '—')}</dd><dt>Duration</dt><dd>${esc(s.dur || '—')}</dd><dt>Parts</dt><dd>${esc(s.comp || '—')}</dd></dl>
+          <div class="ftr">${s.area && SHAPES[s.area] ? SHAPES[s.area] : ''}${s.conc ? '<span class="tag m">Conc</span>' : ''}${s.ritual ? '<span class="tag m">Ritual</span>' : ''}${c.conc && c.conc === s.name ? '<span class="tag m">Active</span>' : ''}<span class="muted" style="margin-left:auto;font-size:.8em">tap to flip</span></div></div>
         <div class="face back"><h3>${esc(s.name)}</h3><p>${interp(s.desc || '', R)}</p><div class="ftr"><button class="btn sm pri" data-act="cast" data-arg="${s.id}">${s.lvl ? 'Cast' : 'Use'}</button><button class="btn sm edit-only" data-act="edititem" data-arg="spell:${s.id}">${I.edit}</button></div></div></div></div>`).join('') || '<div class="empty">No spells match.</div>'}</div>
     </section></div>`;
 }
@@ -994,9 +1238,33 @@ function gearHTML(c) {
   return `<div class="grid2">
     <div class="stack">${attacksHTML(c, false)}${buffTray(c)}${summonsHTML(c)}</div>
     <div class="stack">
-      <section class="panel"><div class="ph"><h2>Attunement</h2><span class="muted">${att.length} of ${maxAtt}</span></div><div class="sockets">${Array.from({ length: maxAtt }, (_, i) => att[i] ? `<div class="sock full" data-act="attune" data-arg="${att[i].id}"><div>${esc(att[i].name)}</div></div>` : `<div class="sock"><div class="muted">Empty socket</div></div>`).join('')}</div><p class="muted" style="margin:10px 0 0;font-size:.9em">Tap an attuned item to end attunement. Tap "Attune" on an item below to socket it.</p></section>
+      <section class="panel"><div class="ph"><h2>Attunement</h2><span class="muted">${att.length} of ${maxAtt}</span></div><div class="sockets">${Array.from({ length: maxAtt }, (_, i) => att[i] ? `<button class="sockc" data-act="attune" data-arg="${att[i].id}" aria-label="End attunement: ${esc(att[i].name)}"><span class="sock full"><span>${esc((att[i].name.match(/\b\w/g) || ['?']).slice(0, 2).join(''))}</span></span><b>${esc(att[i].name)}</b></button>` : `<div class="sockc"><span class="sock"><span></span></span><b class="muted">Empty socket</b></div>`).join('')}</div><p class="muted" style="margin:10px 0 0;font-size:.9em">Tap an attuned item to end attunement. Tap "Attune" on an item below to socket it.</p></section>
       <section class="panel"><div class="ph"><h2>Inventory</h2><button class="btn sm edit-only" data-act="add" data-arg="item">${I.plus} Add</button></div><div class="rows items">${c.items.map(i => `<div class="row" style="align-items:flex-start"><span class="qty">${i.qty}×</span><div class="nm"><b>${esc(i.name)}</b>${i.equipped ? ' <span class="tag">Equipped</span>' : ''}${i.attuned ? ' <span class="tag m">Attuned</span>' : ''}${i.desc ? `<div class="muted" style="font-size:.9em">${esc(i.desc)}</div>` : ''}</div>${i.attune && !i.attuned ? `<button class="btn sm" data-act="attune" data-arg="${i.id}">Attune</button>` : ''}<button class="btn sm edit-only" data-act="edititem" data-arg="item:${i.id}">${I.edit}</button></div>`).join('') || '<div class="empty">Nothing carried.</div>'}</div></section>
       <section class="panel"><div class="ph"><h2>Coin</h2></div><div class="coins">${['cp', 'sp', 'ep', 'gp', 'pp'].map(k => `<label class="coin"><span class="lbl">${k.toUpperCase()}</span><input id="coin-${k}" inputmode="numeric" value="${c.coins[k]}" data-coin="${k}" aria-label="${k.toUpperCase()}"></label>`).join('')}</div></section>
+    </div></div>`;
+}
+/* --- party (local; live sync comes later) --- */
+function partyState() { if (!DB.party) DB.party = { list: [], turn: 0, round: 1 }; return DB.party; }
+function partyHTML(c) {
+  const P = partyState();
+  const strip = DB.chars.map((k, i) => {
+    const r = compute(k), max = r.stats.hpmax.v, cur = k.hp.cur, tmp = k.hp.temp, tot = Math.max(max, cur + tmp), bl = cur > 0 && cur <= max / 2;
+    return `<button class="pmem${i === DB.cur ? ' me' : ''}${bl ? ' bl' : ''}" data-act="swap" data-arg="${i}" aria-label="${esc(k.name)}${i === DB.cur ? ' (open)' : ', tap to open'}">
+      <span class="pt"><span>${esc(k.portrait || k.name[0])}</span></span>
+      <span class="pn"><b>${esc(k.name.split(' ')[0])}</b><span>${esc(k.classes.map(x => x.name + ' ' + x.lvl).join(' / '))}</span></span>
+      <span class="hp"><i style="width:${(cur / tot * 100).toFixed(1)}%"></i>${tmp ? `<i class="t" style="left:${(cur / tot * 100).toFixed(1)}%;width:${(tmp / tot * 100).toFixed(1)}%"></i>` : ''}<s style="left:${(max / 2 / tot * 100).toFixed(1)}%"></s></span>
+      <span class="st"><b>${cur}</b>/ ${max} · AC <b>${r.stats.ac.v}</b>${bl ? ' <span class="cond">Bloodied</span>' : ''}${cur === 0 ? ' <span class="cond">Down</span>' : ''}${k.conc ? ` <span class="cond c">${esc(k.conc)}</span>` : ''}${k.conditions.map(x => ` <span class="cond">${esc(x)}</span>`).join('')}</span></button>`;
+  }).join('');
+  const rows = P.list.map((e, i) => `<div class="irow${i === P.turn ? ' cur' : ''}${e.foe ? ' foe' : ''}${i < P.turn ? ' done' : ''}"><span class="iv">${e.init}</span><span class="in"><b>${esc(e.name)}</b><small>${esc(e.note || (e.foe ? 'Enemy' : 'Ally'))}</small></span>${i === P.turn ? '<span class="now">NOW</span>' : '<span></span>'}<button class="x" data-act="pdel" data-arg="${esc(e.id)}" aria-label="Remove ${esc(e.name)}">✕</button></div>`).join('');
+  return `<div class="stack">
+    <section class="panel"><div class="ph"><h2>Party</h2><span class="muted">Characters on this tablet. Tap one to open it.</span></div><div class="pstrip">${strip}</div></section>
+    <div class="grid2" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)">
+      <section class="panel hot"><div class="ph"><h2>Initiative</h2><span class="rn">Round ${P.round}</span></div>
+        <div class="init">${rows || '<div class="empty">No one in the order yet. Roll yourself in, then add allies and enemies.</div>'}</div>
+        <div class="btnrow" style="margin-top:12px"><button class="btn pri" data-act="proll">Roll ${esc(c.name.split(' ')[0])} in (${sgn(R.stats.init.v)})</button><button class="btn" data-act="padd">${I.plus} Add creature</button><span style="flex:1"></span>${P.list.length ? '<button class="btn" data-act="pnext">Next turn</button><button class="btn dng" data-act="pclear">Clear</button>' : ''}</div></section>
+      <section class="panel"><div class="ph"><h2>Live table</h2><span class="tag">Coming next</span></div>
+        <p class="muted" style="margin:0 0 10px">Next step: a join code so your DM can see party HP and conditions, push roll requests to you, and share one initiative order.</p>
+        <p class="muted" style="margin:0">For now the tracker lives on this tablet, which works well when one tablet sits in the middle of the table.</p></section>
     </div></div>`;
 }
 function notesHTML(c) {
@@ -1684,6 +1952,13 @@ document.addEventListener('click', e => {
   switch (a) {
     case 'mode': DB.ui.mode = arg; save(); hideXray(); render(); window.scrollTo(0, 0); break;
     case 'tab': DB.ui.tab = arg; save(); hideXray(); render(); window.scrollTo(0, 0); break;
+    case 'go': if (arg === 'combat') DB.ui.mode = 'combat'; else { DB.ui.mode = 'explore'; DB.ui.tab = arg; } save(); hideXray(); render(); window.scrollTo(0, 0); break;
+    case 'swap': if (+arg !== DB.cur) { DB.cur = +arg; save(); hideXray(); render(); } break;
+    case 'proll': { const P = partyState(), r = d20(), tot = r + R.stats.init.v; P.list = P.list.filter(x => x.id !== c.id); P.list.push({ id: c.id, name: c.name, init: tot, note: 'You · rolled ' + r + ' ' + sgn(R.stats.init.v) }); P.list.sort((a, b) => b.init - a.init); P.turn = 0; save(); render(); toast(`<div class="t2">Initiative</div><div class="big ${r === 20 ? 'crit' : r === 1 ? 'fumble' : ''}">${tot}</div><div class="t2">rolled ${r} ${sgn(R.stats.init.v)}</div>`); break; }
+    case 'padd': openForm('Add to initiative', [['name', 'Name', 'text'], ['init', 'Initiative', 'number'], ['note', 'Note (HP, AC, anything)', 'text'], ['foe', 'Enemy', 'check']], { foe: true }, o => { const P = partyState(); if (!o.name) return; const cur = P.list[P.turn]; P.list.push({ id: uid('i'), name: o.name, init: +o.init || 0, note: o.note, foe: o.foe }); P.list.sort((a, b) => b.init - a.init); P.turn = cur ? P.list.indexOf(cur) : 0; save(); render(); }); break;
+    case 'pnext': { const P = partyState(); if (!P.list.length) break; P.turn++; if (P.turn >= P.list.length) { P.turn = 0; P.round++; } save(); render(); const e = P.list[P.turn]; toast(`<div class="t2">Round ${P.round}</div><div class="t1">${esc(e.name)}'s turn</div>`, 1400); break; }
+    case 'pdel': { const P = partyState(), cur = P.list[P.turn]; P.list = P.list.filter(x => x.id !== arg); P.turn = Math.max(0, cur && P.list.includes(cur) ? P.list.indexOf(cur) : Math.min(P.turn, P.list.length - 1)); save(); render(); break; }
+    case 'pclear': DB.party = { list: [], turn: 0, round: 1 }; save(); render(); break;
     case 'undo': undo(); break;
     case 'edit': ui.editing = !ui.editing; render(); toast(ui.editing ? '<div class="t1">Editing unlocked</div><div class="t2">Tap ✎ buttons to change things. Lock again before combat.</div>' : '<div class="t1">Sheet locked</div>', 1600); break;
     case 'short': shortRest(); break;

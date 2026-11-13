@@ -118,6 +118,13 @@ document.addEventListener('click', e => {
   switch (a) {
     case 'mode': DB.ui.mode = arg; save(); hideXray(); render(); window.scrollTo(0, 0); break;
     case 'tab': DB.ui.tab = arg; save(); hideXray(); render(); window.scrollTo(0, 0); break;
+    case 'go': if (arg === 'combat') DB.ui.mode = 'combat'; else { DB.ui.mode = 'explore'; DB.ui.tab = arg; } save(); hideXray(); render(); window.scrollTo(0, 0); break;
+    case 'swap': if (+arg !== DB.cur) { DB.cur = +arg; save(); hideXray(); render(); } break;
+    case 'proll': { const P = partyState(), r = d20(), tot = r + R.stats.init.v; P.list = P.list.filter(x => x.id !== c.id); P.list.push({ id: c.id, name: c.name, init: tot, note: 'You · rolled ' + r + ' ' + sgn(R.stats.init.v) }); P.list.sort((a, b) => b.init - a.init); P.turn = 0; save(); render(); toast(`<div class="t2">Initiative</div><div class="big ${r === 20 ? 'crit' : r === 1 ? 'fumble' : ''}">${tot}</div><div class="t2">rolled ${r} ${sgn(R.stats.init.v)}</div>`); break; }
+    case 'padd': openForm('Add to initiative', [['name', 'Name', 'text'], ['init', 'Initiative', 'number'], ['note', 'Note (HP, AC, anything)', 'text'], ['foe', 'Enemy', 'check']], { foe: true }, o => { const P = partyState(); if (!o.name) return; const cur = P.list[P.turn]; P.list.push({ id: uid('i'), name: o.name, init: +o.init || 0, note: o.note, foe: o.foe }); P.list.sort((a, b) => b.init - a.init); P.turn = cur ? P.list.indexOf(cur) : 0; save(); render(); }); break;
+    case 'pnext': { const P = partyState(); if (!P.list.length) break; P.turn++; if (P.turn >= P.list.length) { P.turn = 0; P.round++; } save(); render(); const e = P.list[P.turn]; toast(`<div class="t2">Round ${P.round}</div><div class="t1">${esc(e.name)}'s turn</div>`, 1400); break; }
+    case 'pdel': { const P = partyState(), cur = P.list[P.turn]; P.list = P.list.filter(x => x.id !== arg); P.turn = Math.max(0, cur && P.list.includes(cur) ? P.list.indexOf(cur) : Math.min(P.turn, P.list.length - 1)); save(); render(); break; }
+    case 'pclear': DB.party = { list: [], turn: 0, round: 1 }; save(); render(); break;
     case 'undo': undo(); break;
     case 'edit': ui.editing = !ui.editing; render(); toast(ui.editing ? '<div class="t1">Editing unlocked</div><div class="t2">Tap ✎ buttons to change things. Lock again before combat.</div>' : '<div class="t1">Sheet locked</div>', 1600); break;
     case 'short': shortRest(); break;

@@ -13,6 +13,9 @@ Your characters are saved on the device only. Use **Menu → Copy** to back one 
 
 ## Features
 - Import a public character from D&D Beyond (Menu → Import from D&D Beyond). Uses D&D Beyond's unofficial data feed, so it may break; a paste-the-data fallback is built in
+- Game-HUD look: hex ability gems, an HP ring gauge with temp HP and a Bloodied mark, glowing action lanes and an End Turn plate
+- One nav row for Combat, Sheet, Spells, Gear, Party, Notes and Log; it becomes a bottom tab bar in portrait
+- Party screen with every character on the tablet and a local initiative tracker (live sync with the DM is next)
 - Explore and Combat modes, with an action bar split into Action, Bonus Action, Reaction and Free
 - HP keypad: damage, heal, temp HP, half; concentration saves, death saves, Bloodied badge
 - Buff toggles (Bless, Rage, Hex, Cover, Haste, GWM, Sharpshooter) and weapon sets that update AC
