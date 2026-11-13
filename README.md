@@ -20,7 +20,8 @@ Your characters are saved on the device only. Use **Menu → Copy** to back one 
 - Flip-card spells, slot pips, resource counters with dawn recharge dice, per-class Hit Dice
 - Companion and Wild Shape cards, attunement slots, undo and changelog
 - S Pen notes with pressure, palm rejection and barrel-button eraser
-- Five class themes and a 2014/2024 rules switch
+- Eight themes from the Personal API style guide (Daylight, Dark, Glass, Ember Keep, Neon Grid, Awakened System, Gothic, Quest Board) plus five class themes
+- 2014/2024 rules switch
 
 Rules content is from the System Reference Document (SRD 5.1 / 5.2.1), CC-BY-4.0.
 
@@ -28,5 +29,6 @@ Rules content is from the System Reference Document (SRD 5.1 / 5.2.1), CC-BY-4.0
 The app source is split in `src/`. Rebuild the root files with:
 
 ```
+node src/gen-themes.js   # only after changing theme colours
 node src/build.js .
 ```

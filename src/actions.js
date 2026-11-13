@@ -285,7 +285,9 @@ function coreForm(which) {
     c.initMisc = +o.init || 0; c.casting = o.cast ? { ability: o.cast } : null; c.attuneMax = +o.attune || 3;
   }));
 }
-const SKINS = [['ember', 'Ember (Warlock, Sorcerer)'], ['arcane', 'Parchment & ink (Wizard)'], ['steel', 'Brushed steel (Fighter, Barbarian)'], ['verdant', 'Verdant (Druid, Ranger)'], ['radiant', 'Radiant (Cleric, Paladin)']];
+const SKINS = [['ember', 'Ember (Warlock, Sorcerer)'], ['arcane', 'Parchment & ink (Wizard)'], ['steel', 'Brushed steel (Fighter, Barbarian)'], ['verdant', 'Verdant (Druid, Ranger)'], ['radiant', 'Radiant (Cleric, Paladin)'],
+  ['daylight', 'Daylight'], ['dark', 'Dark'], ['glass', 'Glass'], ['emberkeep', 'Ember Keep'], ['neongrid', 'Neon Grid'], ['awakened', 'Awakened System'], ['gothic', 'Gothic'], ['questboard', 'Quest Board']];
+const STYLE_GUIDE_SKINS = ['daylight', 'dark', 'glass', 'emberkeep', 'neongrid', 'awakened', 'gothic', 'questboard'];
 function overrideForm(key) {
   const st = R.stats[key]; if (!st) return; hideXray();
   const o = C().overrides[key] || { f: '', note: '' };
@@ -344,7 +346,9 @@ function menu() {
   <div class="btnrow"><button class="btn" data-new="1">${I.plus} New character</button><button class="btn" data-dup="1">Duplicate</button><button class="btn pri" data-ddb="1">Import from D&amp;D Beyond</button>${DB.chars.length > 1 ? '<button class="btn dng" data-delc="1">Delete this one</button>' : ''}</div>
   <h2>Table settings</h2>
   <div class="chips"><button class="chip ${DB.settings.digital ? 'on' : ''}" data-dig="1">Roll dice in the app</button><button class="chip" data-fs="-0.08">Text smaller</button><button class="chip" data-fs="0.08">Text larger</button><button class="chip ${c.ruleset === '2024' ? 'on' : ''}" data-rs="2024">2024 rules</button><button class="chip ${c.ruleset === '2014' ? 'on' : ''}" data-rs="2014">2014 rules</button></div>
-  <div class="lbl">Theme</div><div class="chips">${SKINS.map(([k, n]) => `<button class="chip ${c.skin === k ? 'on' : ''}" data-skin="${k}">${n}</button>`).join('')}</div>
+  <div class="lbl">Your style guide themes</div><div class="chips">${SKINS.filter(s => STYLE_GUIDE_SKINS.includes(s[0])).map(([k, n]) => `<button class="chip ${c.skin === k ? 'on' : ''}" data-skin="${k}">${n}</button>`).join('')}</div>
+  <div class="lbl">Class themes</div><div class="chips">${SKINS.filter(s => !STYLE_GUIDE_SKINS.includes(s[0])).map(([k, n]) => `<button class="chip ${c.skin === k ? 'on' : ''}" data-skin="${k}">${n}</button>`).join('')}</div>
+  <div class="btnrow"><button class="btn sm" data-skinall="1">Use this theme for all characters</button></div>
   <h2>Backup</h2><p class="muted" style="margin:0">Everything lives on this tablet only. Copy a backup now and then, and paste one here to restore or move a character.</p>
   <textarea class="field" id="ioj" style="min-height:110px;font-family:ui-monospace,monospace;font-size:.8em" aria-label="Character JSON"></textarea>
   <div class="btnrow"><button class="btn" data-exp="1">Show this character's backup</button><button class="btn" data-copy="1">Copy</button><button class="btn" data-dl="1">Download .json</button><button class="btn pri" data-imp="1">Import pasted backup</button></div>
@@ -360,6 +364,7 @@ function menu() {
     if (d.dig) { DB.settings.digital = !DB.settings.digital; b.classList.toggle('on'); save(); }
     if (d.fs) { DB.settings.fs = Math.min(1.4, Math.max(.8, +(DB.settings.fs + +d.fs).toFixed(2))); save(); render(); }
     if (d.rs) { commit('Switched to ' + d.rs + ' rules', c => c.ruleset = d.rs); closeModal(); menu(); }
+    if (d.skinall) { DB.chars.forEach(k => k.skin = c.skin); save(); msg.textContent = 'Every character now uses this theme.'; return; }
     if (d.skin) { commit('Theme: ' + d.skin, c => c.skin = d.skin); closeModal(); menu(); }
     if (d.exp) { ta.value = JSON.stringify(c); msg.textContent = 'Backup ready. Copy it somewhere safe.'; }
     if (d.copy) { if (!ta.value) ta.value = JSON.stringify(c); const txt = ta.value; const p = navigator.clipboard && navigator.clipboard.writeText(txt); if (p) p.then(() => msg.textContent = 'Copied.').catch(() => { ta.select(); msg.textContent = 'Select-all is on; use your keyboard copy.'; }); else { ta.select(); msg.textContent = 'Text selected; copy it.'; } }
