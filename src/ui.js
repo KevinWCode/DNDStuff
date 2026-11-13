@@ -32,6 +32,8 @@ const I = {
   lock: '<svg class="ico" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
   pen: '<svg class="ico" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
   moon: '<svg class="ico" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>',
+  restS: '<svg class="ico rest" viewBox="0 0 24 24"><g transform="translate(1.6 0)"><path class="fl" d="M12 16c2.3 0 3.7-1.5 3.7-3.6 0-2.1-1.6-3.2-2.2-5-.6 1.1-1.2 1.6-1.8 1.6 0-1.1-.5-2.2-1.6-3.3-.2 2.2-2.1 3.3-2.1 6.5C8 14.4 9.6 16 12 16Z"/><path d="M4 21.5 20 17.5M4 17.5l16 4"/></g><path class="hp" d="M4.5 1.8v5.4M1.8 4.5h5.4"/></svg>',
+  restL: '<svg class="ico rest" viewBox="0 0 24 24"><g transform="translate(.2 4.2) scale(.8)"><path class="fl" d="M12 16.5c3.4 0 5.4-2.2 5.4-5.2 0-3-2.3-4.7-3.1-7.3-.9 1.6-1.8 2.4-2.6 2.4 0-1.6-.8-3.3-2.4-4.9-.3 3.3-3.1 4.9-3.1 9.6 0 3.1 2.4 5.4 5.8 5.4Z"/><path d="M12 16.5c1.4 0 2.3-.9 2.3-2.2 0-1.3-1-2-1.3-3.1-.5.8-1 1.1-1.4 1.1-.2-.6-.4-1.1-.8-1.6-.5 1.1-1.1 1.9-1.1 3.4 0 1.4 1 2.4 2.3 2.4Z"/><path d="M4 21.5 20 17.5M4 17.5l16 4"/></g><path class="hp" d="M4.5 1.8v5.4M1.8 4.5h5.4"/><path d="M22.6 7A3.7 3.7 0 1 1 18.5 2.4a2.9 2.9 0 0 0 4.1 4.6Z"/></svg>',
   fire: '<svg class="ico" viewBox="0 0 24 24"><path d="M12 22c4 0 7-2.7 7-7 0-4-3-6-4-9-1 2-2 3-3 3 0-2-1-4-3-6 0 4-4 6-4 12 0 4.3 3 7 7 7Z"/></svg>',
   menu: '<svg class="ico" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
   plus: '<svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
@@ -88,8 +90,8 @@ function topHTML(c) {
     <div class="tools">
       <button class="tbtn" data-act="undo" ${st.length ? '' : 'disabled'} aria-label="Undo${st.length ? ' (' + st.length + ')' : ''}" title="Undo">${I.undo}${st.length ? `<small>${st.length}</small>` : ''}</button>
       <button class="tbtn ${ui.editing ? 'on' : ''}" data-act="edit" aria-label="${ui.editing ? 'Editing unlocked. Tap to lock' : 'Sheet locked. Tap to edit'}" title="${ui.editing ? 'Editing' : 'Locked'}">${ui.editing ? I.edit : I.lock}</button>
-      <button class="tbtn" data-act="short" aria-label="Short rest" title="Short rest">${I.fire}</button>
-      <button class="tbtn" data-act="long" aria-label="Long rest" title="Long rest">${I.moon}</button>
+      <button class="tbtn" data-act="short" aria-label="Short rest" title="Short rest">${I.restS}</button>
+      <button class="tbtn" data-act="long" aria-label="Long rest" title="Long rest">${I.restL}</button>
       <button class="tbtn" data-act="menu" aria-label="Menu" title="Menu">${I.menu}</button>
     </div></div>`;
 }
