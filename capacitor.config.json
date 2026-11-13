@@ -1,0 +1,11 @@
+{
+  "appId": "io.github.kevinwcode.inkinitiative",
+  "appName": "Ink & Initiative",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#14100f"
+  },
+  "plugins": {
+    "CapacitorHttp": { "enabled": true }
+  }
+}

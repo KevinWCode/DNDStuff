@@ -1,0 +1,67 @@
+name: Android APK
+
+# Builds the Ink & Initiative Android app.
+# On main it also publishes the APK as a GitHub Release, so the newest one is always at
+# https://github.com/KevinWCode/DNDStuff/releases/latest/download/ink-and-initiative.apk
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Install Capacitor
+        run: npm ci
+
+      - name: Bundle the web app (with fonts) for offline use
+        run: node scripts/apk-web.js
+
+      - name: Copy it into the Android project
+        run: npx cap sync android
+
+      - name: Build the APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease -PversionCode=${{ github.run_number }} --no-daemon
+          cp app/build/outputs/apk/release/app-release.apk ../ink-and-initiative.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ink-and-initiative-apk
+          path: ink-and-initiative.apk
+
+      - name: Publish a release
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v1.0.${{ github.run_number }}"
+          gh release create "$TAG" ink-and-initiative.apk \
+            --target "${{ github.sha }}" \
+            --title "Ink & Initiative $TAG" \
+            --notes "Android app for tablets. On the tablet, download ink-and-initiative.apk below and open it to install or update. Built from ${{ github.sha }}." \
+            --latest
