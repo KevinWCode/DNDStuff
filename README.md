@@ -12,6 +12,7 @@ A pen-friendly D&D 5e character sheet for tablets, built as an installable offli
 Your characters are saved on the device only. Use **Menu → Copy** to back one up.
 
 ## Features
+- Import a public character from D&D Beyond (Menu → Import from D&D Beyond). Uses D&D Beyond's unofficial data feed, so it may break; a paste-the-data fallback is built in
 - Explore and Combat modes, with an action bar split into Action, Bonus Action, Reaction and Free
 - HP keypad: damage, heal, temp HP, half; concentration saves, death saves, Bloodied badge
 - Buff toggles (Bless, Rage, Hex, Cover, Haste, GWM, Sharpshooter) and weapon sets that update AC

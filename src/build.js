@@ -1,6 +1,6 @@
 const fs=require('fs');const r=f=>fs.readFileSync(__dirname+'/'+f,'utf8');
 const fonts='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700;800&family=Grenze:wght@500;600;700&display=swap">';
-const js=['data.js','engine.js','ui.js','actions.js','events.js'].map(r).join('\n');
+const js=['data.js','engine.js','ui.js','actions.js','ddb.js','events.js'].map(r).join('\n');
 const core=`<style>\n${r('style.css')}\n</style>\n${r('body.html')}`;
 // artifact page (skeleton is added at publish)
 fs.writeFileSync(__dirname+'/ink-and-initiative.html',`<title>Ink & Initiative</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n${fonts}\n${core}\n<script>\n${js}\n</script>\n`);

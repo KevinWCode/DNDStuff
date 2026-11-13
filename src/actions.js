@@ -341,7 +341,7 @@ function srdSearch() {
 function menu() {
   const c = C();
   modal(`<h2>Characters</h2><div class="rows">${DB.chars.map((k, i) => `<div class="row"><span class="sigil" style="width:38px;height:38px;font-size:18px">${esc(k.portrait || k.name[0])}</span><span class="nm"><b>${esc(k.name)}</b><div class="muted">${esc(k.classes.map(x => x.name + ' ' + x.lvl).join(' / '))}</div></span>${i === DB.cur ? '<span class="tag m">Open</span>' : `<button class="btn sm" data-sw="${i}">Open</button>`}</div>`).join('')}</div>
-  <div class="btnrow"><button class="btn" data-new="1">${I.plus} New character</button><button class="btn" data-dup="1">Duplicate</button>${DB.chars.length > 1 ? '<button class="btn dng" data-delc="1">Delete this one</button>' : ''}</div>
+  <div class="btnrow"><button class="btn" data-new="1">${I.plus} New character</button><button class="btn" data-dup="1">Duplicate</button><button class="btn pri" data-ddb="1">Import from D&amp;D Beyond</button>${DB.chars.length > 1 ? '<button class="btn dng" data-delc="1">Delete this one</button>' : ''}</div>
   <h2>Table settings</h2>
   <div class="chips"><button class="chip ${DB.settings.digital ? 'on' : ''}" data-dig="1">Roll dice in the app</button><button class="chip" data-fs="-0.08">Text smaller</button><button class="chip" data-fs="0.08">Text larger</button><button class="chip ${c.ruleset === '2024' ? 'on' : ''}" data-rs="2024">2024 rules</button><button class="chip ${c.ruleset === '2014' ? 'on' : ''}" data-rs="2014">2014 rules</button></div>
   <div class="lbl">Theme</div><div class="chips">${SKINS.map(([k, n]) => `<button class="chip ${c.skin === k ? 'on' : ''}" data-skin="${k}">${n}</button>`).join('')}</div>
@@ -352,6 +352,7 @@ function menu() {
   <div class="btnrow"><span style="flex:1"></span><button class="btn" data-x2="1">Done</button></div>`, sh => sh.addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return; const d = b.dataset, ta = sh.querySelector('#ioj'), msg = sh.querySelector('#iomsg');
     if (d.x2) closeModal();
+    if (d.ddb) { closeModal(); ddbImport(); return; }
     if (d.sw != null) { DB.cur = +d.sw; save(); closeModal(); hideXray(); render(); }
     if (d.new) { DB.chars.push(blankChar()); DB.cur = DB.chars.length - 1; ui.editing = true; save(); closeModal(); render(); coreForm('identity'); }
     if (d.dup) { const n = JSON.parse(JSON.stringify(c)); n.id = uid('c'); n.name += ' (copy)'; DB.chars.push(n); DB.cur = DB.chars.length - 1; save(); closeModal(); render(); }
