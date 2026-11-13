@@ -210,3 +210,7 @@ body.editing .ab.gem .gi{box-shadow:inset 0 0 0 2px var(--accent)}
 }
 @media (max-width:560px){.minihp{grid-template-columns:auto}.minihp span:not(.hb){display:none}.minihp .hb{display:none}.tools .tbtn[data-act="short"],.tools .tbtn[data-act="long"]{display:none}}
 .sp,.sp .in{min-height:252px}
+
+/* campfire rest icons */
+.ico.rest{overflow:visible}.ico.rest .fl{fill:rgba(var(--glow),.2)}.ico.rest .hp{stroke:var(--good);stroke-width:2.4}
+.tbtn[data-act=short],.tbtn[data-act=long]{color:var(--accent2)}

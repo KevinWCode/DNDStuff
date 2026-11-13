@@ -9,14 +9,15 @@ const INK = (() => {
   const pages = () => { const c = C(); if (!c.ink || !c.ink.length) c.ink = [[]]; if (st.page >= c.ink.length) st.page = c.ink.length - 1; return c.ink; };
   function tools() {
     const p = pages();
-    el.querySelector('#inkTools').innerHTML = COLORS.map(([c, n]) => `<button class="swatch ${!st.eraser && !st.hl && st.color === c ? 'on' : ''}" style="background:${c}" data-ink="color" data-v="${c}" aria-label="${n}"></button>`).join('') +
+    el.querySelector('#inkTools').innerHTML = COLORS.map(([c, n]) => `<button class="swatch ${!st.eraser && !st.hl && st.color === c ? 'on' : ''}" style="background:${inkCol(c)}" data-ink="color" data-v="${c}" aria-label="${n}"></button>`).join('') +
       `<button class="chip ${st.hl ? 'on' : ''}" data-ink="hl">Highlighter</button><button class="chip ${st.eraser ? 'on' : ''}" data-ink="eraser">Eraser</button>
       <button class="chip" data-ink="w" data-v="-1">Thinner</button><button class="chip" data-ink="w" data-v="1">Thicker</button>
       <button class="chip ${st.penOnly ? 'on' : ''}" data-ink="pen">Pen only</button>
       <button class="chip" data-ink="undo">Undo stroke</button>
       <span style="flex:1"></span>
       <button class="chip" data-ink="prev" ${st.page ? '' : 'disabled'}>‹</button><span class="muted">Page ${st.page + 1} of ${p.length}</span><button class="chip" data-ink="next">${st.page === p.length - 1 ? '+ Page' : '›'}</button>
-      <button class="chip" data-ink="clear">Clear page</button>`;
+      <button class="chip" data-ink="clear">Clear page</button>
+      <div class="paperrow"><span class="muted">Paper</span>${[['auto', 'Match theme'], ...PAPERS].map(([k, n]) => `<button class="chip ${(C().paper || 'auto') === k ? 'on' : ''}" data-ink="paper" data-v="${k}">${n}</button>`).join('')}</div>`;
     el.querySelector('#inkHint').textContent = st.penOnly ? 'S Pen writes · hold the pen button to erase' : 'Finger or pen';
   }
   function fit() {
@@ -27,18 +28,22 @@ const INK = (() => {
     scale = r.width / W; H = hCss / scale; cx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
     tools(); redraw();
   }
+  const paperName = () => { const c = C(), p = c.paper || 'auto'; return p === 'auto' ? (c.skin === 'neongrid' ? 'digital' : 'parchment') : p; };
+  const inkCol = c => paperName() === 'digital' ? (NEON[c] || c) : c;
   function paper() {
-    cx.clearRect(0, 0, W, H * 2); cx.fillStyle = '#f4ecda'; cx.fillRect(0, 0, W, H);
-    cx.strokeStyle = 'rgba(80,110,160,.18)'; cx.lineWidth = 1.2; for (let y = 60; y < H; y += 38) { cx.beginPath(); cx.moveTo(0, y); cx.lineTo(W, y); cx.stroke(); }
-    cx.strokeStyle = 'rgba(180,40,50,.25)'; cx.beginPath(); cx.moveTo(70, 0); cx.lineTo(70, H); cx.stroke();
+    wrap.dataset.paper = paperName();
+    cx.save(); cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, cv.width, cv.height);
+    cx.drawImage(PAPER.draw(paperName(), W, H, cv.width, cv.height), 0, 0); cx.restore();
   }
   function drawStroke(s) {
     const p = s.p; if (p.length < 3) return;
-    cx.strokeStyle = s.c; cx.globalAlpha = s.a || 1; cx.lineCap = 'round'; cx.lineJoin = 'round';
+    const col = inkCol(s.c), neon = paperName() === 'digital' && !(s.a < 1);
+    cx.strokeStyle = col; cx.globalAlpha = s.a || 1; cx.lineCap = 'round'; cx.lineJoin = 'round';
+    if (neon) { cx.shadowColor = col; cx.shadowBlur = 5; }
     if (s.a < 1) { cx.lineWidth = s.w; cx.beginPath(); cx.moveTo(p[0], p[1]); for (let i = 3; i < p.length; i += 3) cx.lineTo(p[i], p[i + 1]); cx.stroke(); }
     else for (let i = 3; i < p.length; i += 3) { cx.lineWidth = s.w * (0.35 + (p[i + 2] / 100) * 1.3); cx.beginPath(); cx.moveTo(p[i - 3], p[i - 2]); cx.lineTo(p[i], p[i + 1]); cx.stroke(); }
-    if (p.length === 3) { cx.beginPath(); cx.arc(p[0], p[1], s.w / 2, 0, 7); cx.fillStyle = s.c; cx.fill(); }
-    cx.globalAlpha = 1;
+    if (p.length === 3) { cx.beginPath(); cx.arc(p[0], p[1], s.w / 2, 0, 7); cx.fillStyle = col; cx.fill(); }
+    cx.globalAlpha = 1; cx.shadowBlur = 0;
   }
   function redraw() { paper(); (pages()[st.page] || []).forEach(drawStroke); if (st.drawing) drawStroke(st.drawing); }
   const pos = e => { const r = cv.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / scale), Math.round((e.clientY - r.top) / scale), Math.round((e.pressure || .5) * 100)]; };
@@ -71,6 +76,7 @@ const INK = (() => {
     if (k === 'eraser') { st.eraser = !st.eraser; st.hl = false; }
     if (k === 'w') st.w = Math.max(1, Math.min(10, st.w + +b.dataset.v));
     if (k === 'pen') st.penOnly = !st.penOnly;
+    if (k === 'paper') { C().paper = b.dataset.v; save(); }
     if (k === 'undo') { p[st.page].pop(); save(); }
     if (k === 'prev') st.page = Math.max(0, st.page - 1);
     if (k === 'next') { if (st.page === p.length - 1) p.push([]); st.page++; save(); }
